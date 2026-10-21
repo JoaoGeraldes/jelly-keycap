@@ -179,6 +179,9 @@ Set these as environment variables when running `npm start`:
 | `ALLOWED_HOSTNAMES` | `localhost,127.0.0.1` | Comma-separated names the browser may use to reach the server, for example `vault.home.lan` |
 | `VAULT_DATABASE` | `vault.sqlite` | Path to the database file |
 
+**Look.** The faint grain over the app is set at the top of `src/app.css`: `--noise-opacity`
+(0 turns it off), `--noise-size` and, inside `--noise-texture`, `baseFrequency` for how fine it is.
+
 ## Security notes
 
 Please read these before putting this on a network.
