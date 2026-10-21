@@ -49,8 +49,9 @@ export async function createMasterPassword(password) {
   await api.createKeyDerivation(keyDerivation);
   masterKey = key;
   masterKeySalt = keyDerivation.salt;
-  Object.assign(session, { isUnlocked: true, lockReason: '', vaults: [], items: [] });
+  Object.assign(session, { lockReason: '', vaults: [], items: [] });
   await createVault('Personal');
+  session.isUnlocked = true; // only now, so the vault screen opens with Personal already there
 }
 
 /** Checks the password, then downloads and decrypts every vault and item. */
@@ -108,8 +109,9 @@ export async function createVault(name) {
   return id;
 }
 
-/** Deletes the vault and, on the server, every item in it. */
-export async function deleteVault(vaultId) {
+/** Deletes the vault and, on the server, every item in it. Asks for the master password first. */
+export async function deleteVault(vaultId, masterPassword) {
+  await deriveCheckedMasterKey(masterPassword); // throws if the password is wrong
   await api.deleteVault(vaultId);
   session.vaults = session.vaults.filter((vault) => vault.id !== vaultId);
   session.items = session.items.filter((item) => item.vaultId !== vaultId);

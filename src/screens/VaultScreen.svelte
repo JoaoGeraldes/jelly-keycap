@@ -5,16 +5,18 @@
 <script>
   import ChangeMasterPassword from '../components/ChangeMasterPassword.svelte';
   import DatabaseViewer from '../components/DatabaseViewer.svelte';
+  import DeleteVaultDialog from '../components/DeleteVaultDialog.svelte';
   import HowItWorks from '../components/HowItWorks.svelte';
   import ItemEditor from '../components/ItemEditor.svelte';
   import { BACKUP_URL } from '../lib/api.js';
-  import { createVault, deleteVault, lock, newItem, session } from '../lib/vault.svelte.js';
+  import { createVault, lock, newItem, session } from '../lib/vault.svelte.js';
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
   let openPanel = $state(null); // 'change-password', 'database', 'how-it-works', or null to show the selected item
   let searchText = $state('');
   let isNamingNewVault = $state(false);
+  let vaultBeingDeleted = $state(null); // kept here, so the dialog still has it once it leaves the list
   let newVaultName = $state('');
 
   const isWidePanelOpen = $derived(openPanel === 'database' || openPanel === 'how-it-works');
@@ -61,11 +63,8 @@
     if (name) selectVault(await createVault(name));
   }
 
-  async function removeSelectedVault() {
-    const count = countItems(selectedVaultId);
-    const question = `Delete the vault “${selectedVault.name}” and the ${count} login${count === 1 ? '' : 's'} in it? This can’t be undone.`;
-    if (!confirm(question)) return;
-    await deleteVault(selectedVaultId);
+  function afterVaultDeleted() {
+    vaultBeingDeleted = null;
     selectVault(session.vaults[0]?.id);
   }
 </script>
@@ -129,7 +128,7 @@
         {/each}
       </ul>
 
-      <button class="button-quiet is-danger delete-vault" onclick={removeSelectedVault}>Delete this vault</button>
+      <button class="button-quiet is-danger delete-vault" onclick={() => (vaultBeingDeleted = selectedVault)}>Delete this vault</button>
     {:else}
       <p class="empty">Create a vault to start saving logins.</p>
     {/if}
@@ -158,6 +157,15 @@
   </section>
 </div>
 
+{#if vaultBeingDeleted}
+  <DeleteVaultDialog
+    vault={vaultBeingDeleted}
+    loginCount={countItems(vaultBeingDeleted.id)}
+    onDeleted={afterVaultDeleted}
+    onCancel={() => (vaultBeingDeleted = null)}
+  />
+{/if}
+
 <style>
   .vault-screen {
     display: grid;
@@ -173,6 +181,10 @@
     padding: 1.25rem 0.75rem;
     overflow-y: auto;
     border-right: 1px solid var(--color-line);
+  }
+
+  .vaults {
+    background: var(--color-sidebar);
   }
 
   .items {
@@ -201,7 +213,7 @@
 
   .app-name {
     margin: 0 0.6rem 1rem;
-    color: var(--color-brass);
+    color: var(--color-accent);
     font-weight: 700;
     font-size: 1.1rem;
   }
@@ -224,12 +236,12 @@
 
   .vault-button:hover,
   .item-row:hover {
-    background: color-mix(in srgb, var(--color-brass) 8%, transparent);
+    background: var(--color-hover);
   }
 
   .vault-button.is-selected,
   .item-row.is-selected {
-    background: color-mix(in srgb, var(--color-brass) 16%, transparent);
+    background: var(--color-selection);
   }
 
   .vault-button span:first-child {
@@ -286,8 +298,8 @@
     width: 2.25rem;
     height: 2.25rem;
     border-radius: var(--radius);
-    background: var(--color-brass);
-    color: var(--color-on-brass);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
     font-weight: 700;
   }
 

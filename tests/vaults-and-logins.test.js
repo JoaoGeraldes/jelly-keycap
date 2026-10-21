@@ -83,11 +83,22 @@ test('deleting a vault deletes its logins and leaves other vaults alone', async 
   await window.saveItem({ ...window.newItem(workId), title: 'AWS' });
   await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
 
-  await window.deleteVault(workId);
+  await window.deleteVault(workId, PASSWORD);
   await relock();
 
   assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal']);
   assert.deepEqual(window.session.items.map((item) => item.title), ['GitHub']);
+});
+
+test('a vault is only deleted with the right master password', async () => {
+  const workId = await window.createVault('Work');
+  await window.saveItem({ ...window.newItem(workId), title: 'AWS' });
+
+  await assert.rejects(window.deleteVault(workId, 'wrong password'), /not right/);
+  await relock();
+
+  assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal', 'Work']);
+  assert.deepEqual(window.session.items.map((item) => item.title), ['AWS']);
 });
 
 test('the backup is a complete SQLite copy with no readable secrets', async () => {

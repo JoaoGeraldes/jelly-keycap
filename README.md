@@ -189,6 +189,9 @@ Please read these before putting this on a network.
   delete it. They still cannot read it without your master password. That's why the server only
   listens on `127.0.0.1` by default. To use it from other devices, put it behind a reverse proxy
   with HTTPS and access control (Caddy with basic auth, Tailscale, a VPN, and so on).
+- **Deleting a vault asks for the master password.** That stops someone at your unlocked screen
+  from wiping a vault. The check runs in the browser, so it does not replace access control on
+  the server itself (see the point above).
 - **HTTPS is required anywhere except localhost.** Browsers only enable WebCrypto and the
   clipboard on secure origins, and your encrypted data should not travel in plain HTTP either.
 - **Built-in protections:**
@@ -238,7 +241,7 @@ server/
 src/
   main.js               Mounts the app
   App.svelte            Lock screen or vault screen
-  app.css               Colors, base elements, button styles
+  app.css               Color tokens for both themes (dark follows VS Code's Dark Modern), base elements, buttons
   lib/
     crypto.js           Argon2id, AES-GCM, base64, password generator
     api.js              One function per API route
@@ -250,6 +253,7 @@ src/
   components/
     ItemEditor.svelte   View and edit one login
     ChangeMasterPassword.svelte  Form to change the master password
+    DeleteVaultDialog.svelte     Asks for the master password before deleting a vault
     DatabaseViewer.svelte        Read-only view of every table, page by page
     HowItWorks.svelte            Draggable diagram of the encryption
 tests/                  See Tests above

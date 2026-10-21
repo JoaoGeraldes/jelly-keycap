@@ -94,10 +94,10 @@
     padding: 1.5rem;
   }
 
-  /* The one bold element in the app: a large brass keyhole. */
+  /* The one bold element in the app: a large keyhole in the accent color. */
   .keyhole {
     width: 4.5rem;
-    fill: var(--color-brass);
+    fill: var(--color-accent);
   }
 
   form {

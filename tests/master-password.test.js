@@ -19,6 +19,24 @@ test('a new server has no master password until one is created', async () => {
   assert.equal(window.session.isUnlocked, true);
 });
 
+test('the vault opens only once its Personal vault exists', async () => {
+  const window = await openWindow();
+  let vaultsWhenOpened;
+  // Records what the vault screen would see at the moment the session unlocks.
+  let isUnlocked = false;
+  Object.defineProperty(window.session, 'isUnlocked', {
+    get: () => isUnlocked,
+    set: (value) => {
+      if (value) vaultsWhenOpened = window.session.vaults.map((vault) => vault.name);
+      isUnlocked = value;
+    },
+  });
+
+  await window.createMasterPassword(PASSWORD);
+
+  assert.deepEqual(vaultsWhenOpened, ['Personal']);
+});
+
 test('a master password can only be created once', async () => {
   const window = await openWindow();
   await window.createMasterPassword(PASSWORD);

@@ -96,8 +96,8 @@
   }
 
   .is-selected {
-    border-color: var(--color-brass);
-    color: var(--color-brass);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
 
   .table-scroll {

@@ -153,7 +153,7 @@
   .generate {
     justify-self: start;
     padding-left: 0;
-    color: var(--color-brass);
+    color: var(--color-link);
   }
 
   .actions {

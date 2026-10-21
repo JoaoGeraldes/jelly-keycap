@@ -2,35 +2,58 @@
  * Global look: color tokens, base elements and the three button styles.
  * Layout lives in each component's own <style> block.
  *
- * Palette: muted sage paper with a brass accent, the colors of a key and a lock.
+ * Light: muted sage paper with a brass accent, the colors of a key and a lock.
+ * Dark: VS Code's default "Dark Modern" theme (colors from its theme file), including its
+ *       denser 13px type and small corner radius.
  * Fonts are the system's own, so the app works offline and loads nothing from the internet.
  */
 
 :root {
-  --color-background: #e9ece6;
-  --color-surface: #f7f8f5;
+  --color-background: #e9ece6; /* the main area */
+  --color-sidebar: #e9ece6; /* the vault list on the left */
+  --color-surface: #f7f8f5; /* panels: the login list, dialogs, tables */
+  --color-control: #f7f8f5; /* inputs and outlined buttons */
+  --color-control-border: #d3d9d1;
   --color-ink: #1e2a24;
   --color-ink-muted: #5e6b64;
   --color-line: #d3d9d1;
-  --color-brass: #8a5e17;
-  --color-on-brass: #ffffff;
+  --color-accent: #8a5e17;
+  --color-on-accent: #ffffff;
+  --color-link: #8a5e17;
+  --color-hover: color-mix(in srgb, #8a5e17 8%, transparent);
+  --color-selection: color-mix(in srgb, #8a5e17 16%, transparent);
   --color-danger: #a63d2a;
+  --color-solid: #1e2a24; /* filled blocks, like the algorithm steps in "How it works" */
+  --color-on-solid: #e9ece6;
 
   --font-ui: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-size: 15px;
   --radius: 8px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: #121a16;
-    --color-surface: #1a2520;
-    --color-ink: #e3e9e4;
-    --color-ink-muted: #95a39b;
-    --color-line: #2c3a33;
-    --color-brass: #d4a452;
-    --color-on-brass: #1a1206;
-    --color-danger: #e07a63;
+    --color-background: #1f1f1f; /* editor.background */
+    --color-sidebar: #181818; /* sideBar.background */
+    --color-surface: #181818;
+    --color-control: #313131; /* input.background */
+    --color-control-border: #3c3c3c; /* input.border */
+    --color-ink: #cccccc; /* foreground */
+    --color-ink-muted: #9d9d9d; /* descriptionForeground */
+    --color-line: #2b2b2b; /* sideBar.border */
+    --color-accent: #0078d4; /* button.background, focusBorder */
+    --color-on-accent: #ffffff;
+    --color-link: #4daafc; /* textLink.foreground */
+    --color-hover: #2a2d2e; /* list.hoverBackground */
+    --color-selection: #04395e; /* list.activeSelectionBackground */
+    --color-danger: #f85149; /* errorForeground */
+    --color-solid: #3c3c3c;
+    --color-on-solid: #ffffff;
+
+    --font-size: 13px;
+    --radius: 2px;
+    font-size: 13px; /* scales every rem-based size to VS Code's density */
   }
 }
 
@@ -42,7 +65,7 @@ body {
   margin: 0;
   background: var(--color-background);
   color: var(--color-ink);
-  font: 15px/1.5 var(--font-ui);
+  font: var(--font-size) / 1.5 var(--font-ui);
 }
 
 h1,
@@ -54,19 +77,19 @@ input,
 textarea {
   width: 100%;
   padding: 0.55rem 0.7rem;
-  border: 1px solid var(--color-line);
+  border: 1px solid var(--color-control-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-control);
   color: inherit;
   font: inherit;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-brass);
+  outline: 2px solid var(--color-accent);
   outline-offset: 1px;
 }
 
-/* Buttons: .button (outlined), .button-primary (brass), .button-quiet (text only) */
+/* Buttons: .button (outlined), .button-primary (accent color), .button-quiet (text only) */
 .button,
 .button-primary,
 .button-quiet {
@@ -74,9 +97,9 @@ textarea {
   align-items: center;
   justify-content: center;
   padding: 0.55rem 0.9rem;
-  border: 1px solid var(--color-line);
+  border: 1px solid var(--color-control-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-control);
   color: var(--color-ink);
   font: inherit;
   white-space: nowrap;
@@ -85,9 +108,9 @@ textarea {
 }
 
 .button-primary {
-  border-color: var(--color-brass);
-  background: var(--color-brass);
-  color: var(--color-on-brass);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
   font-weight: 600;
 }
 
@@ -97,10 +120,14 @@ textarea {
   color: var(--color-ink-muted);
 }
 
-.button-quiet:hover,
 .button:hover {
   color: var(--color-ink);
   border-color: var(--color-ink-muted);
+}
+
+.button-quiet:hover {
+  color: var(--color-ink);
+  background: var(--color-hover);
 }
 
 .is-danger {

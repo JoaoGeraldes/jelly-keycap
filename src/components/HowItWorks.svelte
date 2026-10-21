@@ -142,8 +142,8 @@
   }
 
   .is-selected {
-    border-color: var(--color-brass);
-    color: var(--color-brass);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
   }
 
   .legend {
@@ -188,7 +188,7 @@
   }
 
   svg path.is-highlighted {
-    stroke: var(--color-brass);
+    stroke: var(--color-accent);
     stroke-width: 2;
   }
 
@@ -198,7 +198,7 @@
   }
 
   #arrow-highlighted path {
-    fill: var(--color-brass);
+    fill: var(--color-accent);
   }
 
   .node {
@@ -222,7 +222,7 @@
   }
 
   .kind-browser {
-    border-color: var(--color-brass);
+    border-color: var(--color-accent);
   }
 
   .kind-server {
@@ -231,9 +231,9 @@
   }
 
   .kind-step {
-    border-color: var(--color-ink);
-    background: var(--color-ink);
-    color: var(--color-background);
+    border-color: var(--color-solid);
+    background: var(--color-solid);
+    color: var(--color-on-solid);
   }
 
   .note {
@@ -266,7 +266,7 @@
   }
 
   .note a {
-    color: var(--color-brass);
+    color: var(--color-link);
     font-size: 0.8rem;
   }
 
