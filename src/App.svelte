@@ -26,10 +26,14 @@
     overflow: auto;
   }
 
+  /* Sized in px, not rem: the bar holds the text size buttons, so it must not grow or
+     shrink under the cursor while they are being pressed. */
   .top-bar {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    padding: 0.2rem 0.5rem;
+    height: 40px;
+    padding: 0 8px;
     border-bottom: 1px solid var(--color-line);
     background: var(--color-sidebar);
   }

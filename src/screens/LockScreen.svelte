@@ -15,7 +15,7 @@
   let isFirstRun = $state(null); // null while asking the server
   let password = $state('');
   let passwordAgain = $state('');
-  let errorMessage = $state(session.lockReason); // why the vault locked itself, if it did
+  let errorMessage = $state('');
   let isWorking = $state(false);
 
   hasMasterPassword()
@@ -56,6 +56,9 @@
       {:else}
         <h1>Unlock your vault</h1>
       {/if}
+
+      <!-- Why the vault locked itself, if it did. Informational, so not shown as an error. -->
+      {#if session.lockReason}<p class="notice" role="status">{session.lockReason}</p>{/if}
 
       <label for="master-password">Master password</label>
       <!-- svelte-ignore a11y_autofocus -->
@@ -112,6 +115,13 @@
     font-size: 1.5rem;
     line-height: 1.25;
     text-align: center;
+  }
+
+  .notice {
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid var(--color-accent);
+    background: var(--color-surface);
+    overflow-wrap: anywhere; /* long file paths wrap instead of overflowing */
   }
 
   .explanation {

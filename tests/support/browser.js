@@ -5,16 +5,23 @@ import { createApiHandler } from '../../server/api.js';
 const realFetch = globalThis.fetch;
 
 /**
- * Starts the API on a random port with a new, empty in-memory database,
- * and points the app's fetch('/api/...') calls at it.
+ * Starts the API on a random port with a new, empty database (in memory unless a file path is
+ * given), and points the app's fetch('/api/...') calls at it.
  * Returns the server's base URL and a function to stop it.
  */
-export async function startEmptyServer() {
-  const server = createServer(createApiHandler(':memory:'));
+export async function startEmptyServer({ databasePath = ':memory:' } = {}) {
+  const handleApiRequest = createApiHandler(databasePath);
+  const server = createServer(handleApiRequest);
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
   globalThis.fetch = (path, options) => realFetch(baseUrl + path, options);
-  return { baseUrl, stop: () => server.close() };
+  return {
+    baseUrl,
+    stop: () => {
+      server.close();
+      handleApiRequest.closeDatabase();
+    },
+  };
 }
 
 let windowCount = 0;

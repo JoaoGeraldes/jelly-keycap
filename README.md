@@ -132,7 +132,8 @@ space but lets the server pass values straight through with no conversion code.
 Deleting a vault deletes its items too (`ON DELETE CASCADE`).
 
 **View database** in the app shows every table, column and value exactly as stored, read-only
-and 50 rows per page. It's a quick way to check for yourself that nothing secret is readable.
+and 50 rows per page. Dates (`*_at` columns) are shown in your own language and time zone; pointing
+at one shows the stored value. It's a quick way to check for yourself that nothing secret is readable.
 
 **What someone with only the file can see:** how many vaults and items exist, which item is
 in which vault, item types, and when things were created or changed. Nothing else.
@@ -154,6 +155,8 @@ Implemented in [`server/api.js`](server/api.js). It's JSON in and out. Errors co
 | `PUT /api/items/:id` | `{ vaultId, type, dataEnc }` | `null`; creates or updates |
 | `DELETE /api/items/:id` | | `null` |
 | `GET /api/backup` | | The database file, as a download |
+| `POST /api/restore` | `{ backup }` (the backup file, base64) | `{ safetyCopyPath }`; the current vault is saved there first |
+| `GET /api/database-file` | | `{ path, sizeBytes }` of the database file |
 | `GET /api/tables` | | `[{ name, rowCount }]` for every table |
 | `GET /api/tables/:name?page=1` | | `{ columns, rows, page, pageSize, pageCount, rowCount }`, 50 rows per page |
 
@@ -161,12 +164,17 @@ IDs are UUIDs created in the browser, which is why creating and updating are the
 
 ## Backup and restore
 
-- **Backup:** click **Download backup** in the app, or `GET /api/backup`. You get a complete,
+- **Backup:** open **View database** and click **Download backup**, or `GET /api/backup`. You get a complete,
   consistent copy of the database (made with SQLite's `VACUUM INTO`). It is already encrypted,
   so you can keep it in any cloud folder. Copying `vault.sqlite` while the server is stopped
   works just as well.
-- **Restore:** stop the server, replace `vault.sqlite` with the backup, and start it again.
-  Unlock with the master password that was in use when the backup was made.
+- **Restore:** in the app, open **View database** and use **Restore a backup** at the bottom. Before
+  anything changes, the file is checked (a file that isn't a backup changes nothing) and your
+  current vault is saved next to it as `vault-before-restore-<date and time>.sqlite`. The swap is a
+  single transaction. Afterwards the app locks: unlock with the master password that was in use when
+  the backup was made. To undo, restore the saved copy the same way.
+  Without the app: stop the server, replace `vault.sqlite` with the backup, and start it again.
+- **Where the file is:** **View database** shows the full path and size of the database file.
 
 ## Configuration
 
@@ -195,9 +203,11 @@ Please read these before putting this on a network.
   delete it. They still cannot read it without your master password. That's why the server only
   listens on `127.0.0.1` by default. To use it from other devices, put it behind a reverse proxy
   with HTTPS and access control (Caddy with basic auth, Tailscale, a VPN, and so on).
-- **Deleting a vault asks for the master password.** That stops someone at your unlocked screen
-  from wiping a vault. The check runs in the browser, so it does not replace access control on
-  the server itself (see the point above).
+- **Deleting a vault and restoring a backup ask for the master password.** That stops someone at
+  your unlocked screen. The check runs in the browser, so it does not replace access control on
+  the server itself (see the point above). A restore always saves the current vault first.
+- **The database file's full path is shown** in the app (and by `GET /api/database-file`). On a
+  shared server, that reveals the folder name, which may include a user name.
 - **HTTPS is required anywhere except localhost.** Browsers only enable WebCrypto and the
   clipboard on secure origins, and your encrypted data should not travel in plain HTTP either.
 - **Built-in protections:**
@@ -227,6 +237,8 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js` |
 | `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is saved | `src/lib/display-settings.js` |
 | `tests/caps-lock.test.js` | Caps Lock warning turns on and off with key presses | `src/lib/caps-lock.svelte.js` |
+| `tests/database-file.test.js` | File location; restoring a backup, the safety copy, wrong or damaged files, password check | `server/api.js`, `vault.svelte.js` |
+| `tests/format.test.js` | Dates in the person's locale and time zone, other values as stored, file sizes | `src/lib/format.js` |
 | `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
 
 To run one file:
@@ -255,6 +267,7 @@ src/
     api.js              One function per API route
     vault.svelte.js     Session state; encryption on the way out, decryption on the way in
     display-settings.js Text size and theme: load, apply, remember
+    format.js           How stored values are shown: local dates and times, file sizes
     caps-lock.svelte.js Whether Caps Lock is on, for the warning under password fields
     how-it-works.js     Nodes and arrows of the "How it works" diagrams (Simple and Technical)
   screens/
@@ -266,7 +279,8 @@ src/
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
     DeleteVaultDialog.svelte     Asks for the master password before deleting a vault
-    DatabaseViewer.svelte        Read-only view of every table, page by page
+    DatabaseViewer.svelte        Where the file is, and a read-only view of every table, page by page
+    RestoreBackup.svelte         Restore a backup (current vault saved first)
     HowItWorks.svelte            Draggable diagram of the encryption
 tests/                  See Tests above
 vite.config.js          Svelte build, and the API mounted inside the dev server

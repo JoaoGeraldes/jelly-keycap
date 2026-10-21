@@ -16,23 +16,28 @@
  *   PUT    /api/items/:id               → create or update an item
  *   DELETE /api/items/:id               → delete an item
  *   GET    /api/backup                  → download a copy of the database file
+ *   POST   /api/restore                 → replace everything with a backup (current vault saved first)
+ *   GET    /api/database-file           → where the database file is, and its size
  *   GET    /api/tables                  → every table, with its number of rows (read-only viewer)
  *   GET    /api/tables/:name?page=1     → one page of a table, every column exactly as stored
  */
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 export const DEFAULT_DATABASE_PATH = process.env.VAULT_DATABASE ?? 'vault.sqlite';
 
 const SCHEMA = readFileSync(new URL('./schema.sql', import.meta.url), 'utf8');
 const TABLE_PAGE_SIZE = 50;
+const NOT_A_BACKUP = 'This file isn’t a Vault backup, so nothing was changed.';
 
 /** Opens (or creates) the database and returns the handler for every /api/ request. */
 export function createApiHandler(databasePath) {
   const database = new DatabaseSync(databasePath);
   database.exec(SCHEMA);
+  const isInMemory = databasePath === ':memory:'; // used by the tests
+  const absolutePath = isInMemory ? databasePath : resolve(databasePath);
 
   // A vault key is wrapped with the master key, and the salt identifies which master key that is.
   // If the password was changed in another window, this window's master key is out of date and
@@ -49,6 +54,34 @@ export function createApiHandler(databasePath) {
       .prepare("SELECT name FROM sqlite_schema WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name")
       .all()
       .map((table) => table.name);
+  }
+
+  /** Opens a would-be backup on its own and checks it has a master password and the vault tables. */
+  function checkIsBackup(path) {
+    let backup;
+    try {
+      backup = new DatabaseSync(path, { readOnly: true });
+      const { count } = backup.prepare('SELECT count(*) AS count FROM key_derivation').get();
+      backup.prepare('SELECT id, wrapped_key, name_enc FROM vaults LIMIT 1').all();
+      backup.prepare('SELECT id, vault_id, type, data_enc FROM items LIMIT 1').all();
+      if (count !== 1) throw new Error();
+    } catch {
+      throw httpError(400, NOT_A_BACKUP);
+    } finally {
+      backup?.close();
+    }
+  }
+
+  /** Saves a copy of the current database next to it, named with today's date and time. */
+  function saveSafetyCopy() {
+    // Local time, so the name matches the clock on this computer; milliseconds keep quick repeats unique.
+    const now = new Date();
+    const localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
+    const stamp = localTime.toISOString().slice(0, 23).replaceAll(':', '-'); // 2026-10-21T22-45-07.123
+    const folder = isInMemory ? tmpdir() : dirname(absolutePath);
+    const safetyCopyPath = join(folder, `vault-before-restore-${stamp}.sqlite`);
+    database.prepare('VACUUM INTO ?').run(safetyCopyPath);
+    return safetyCopyPath;
   }
 
   function inTransaction(work) {
@@ -149,6 +182,43 @@ export function createApiHandler(databasePath) {
       };
     },
 
+    'GET database-file': () => ({
+      path: absolutePath,
+      sizeBytes: isInMemory ? 0 : statSync(absolutePath).size,
+    }),
+
+    // The backup is checked and the current vault saved before anything changes, and the swap
+    // itself is one transaction, so a wrong file or a failure halfway leaves everything as it was.
+    'POST restore': ({ body }) => {
+      const uploadPath = join(tmpdir(), `vault-upload-${Date.now()}.sqlite`);
+      writeFileSync(uploadPath, Buffer.from(body.backup, 'base64'));
+      try {
+        checkIsBackup(uploadPath);
+        const safetyCopyPath = saveSafetyCopy();
+        database.prepare('ATTACH DATABASE ? AS backup').run(uploadPath);
+        try {
+          inTransaction(() =>
+            database.exec(`
+              DELETE FROM items;
+              DELETE FROM vaults;
+              DELETE FROM key_derivation;
+              INSERT INTO key_derivation (id, kdf_params, salt, verifier, created_at)
+                SELECT id, kdf_params, salt, verifier, created_at FROM backup.key_derivation;
+              INSERT INTO vaults (id, wrapped_key, name_enc, created_at, updated_at)
+                SELECT id, wrapped_key, name_enc, created_at, updated_at FROM backup.vaults;
+              INSERT INTO items (id, vault_id, type, data_enc, created_at, updated_at)
+                SELECT id, vault_id, type, data_enc, created_at, updated_at FROM backup.items;
+            `),
+          );
+        } finally {
+          database.exec('DETACH DATABASE backup');
+        }
+        return { safetyCopyPath };
+      } finally {
+        rmSync(uploadPath);
+      }
+    },
+
     // VACUUM INTO writes a clean, consistent copy of the database, even while it is in use.
     'GET backup': () => {
       const copyPath = join(tmpdir(), `vault-backup-${Date.now()}.sqlite`);
@@ -159,7 +229,7 @@ export function createApiHandler(databasePath) {
     },
   };
 
-  return async function handleApiRequest(request, response) {
+  async function handleApiRequest(request, response) {
     const url = new URL(request.url, 'http://localhost');
     const [collection, id] = url.pathname.slice('/api/'.length).split('/');
     const route = routes[`${request.method} ${collection}${id ? '/:id' : ''}`];
@@ -173,7 +243,10 @@ export function createApiHandler(databasePath) {
     } catch (error) {
       sendJson(response, error.status ?? 400, { error: error.message });
     }
-  };
+  }
+
+  handleApiRequest.closeDatabase = () => database.close(); // lets tests delete their temporary files
+  return handleApiRequest;
 }
 
 function httpError(status, message) {

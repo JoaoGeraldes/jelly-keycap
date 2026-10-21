@@ -6,7 +6,7 @@
     loadDisplaySettings,
     nextTextScale,
     saveDisplaySettings,
-  } from '../lib/display-settings.js';
+  } from "../lib/display-settings.js";
 
   let settings = $state(loadDisplaySettings());
 
@@ -23,40 +23,52 @@
     aria-label="Smaller text"
     title="Smaller text"
     disabled={settings.textScale <= TEXT_SCALE.min}
-    onclick={() => update({ textScale: nextTextScale(settings.textScale, -1) })}>A−</button
+    onclick={() => update({ textScale: nextTextScale(settings.textScale, -1) })}
+    >A−</button
   >
   <button
     class="button-quiet"
     aria-label="Larger text"
     title="Larger text"
     disabled={settings.textScale >= TEXT_SCALE.max}
-    onclick={() => update({ textScale: nextTextScale(settings.textScale, 1) })}>A+</button
+    onclick={() => update({ textScale: nextTextScale(settings.textScale, 1) })}
+    >A+</button
   >
-  <button class="button-quiet theme-toggle" onclick={() => update({ theme: settings.theme === 'dark' ? 'light' : 'dark' })}>
-    {settings.theme === 'dark' ? 'Light theme' : 'Dark theme'}
+  <button
+    class="button-quiet theme-toggle"
+    onclick={() =>
+      update({ theme: settings.theme === "dark" ? "light" : "dark" })}
+  >
+    {settings.theme === "dark" ? "Light theme" : "Dark theme"}
   </button>
 </div>
 
 <style>
+  /* Everything here is in px so it keeps its size when the text size changes
+     (see .top-bar in App.svelte). Buttons are at least 32px, well above the 24px minimum target. */
   .display-settings {
     display: flex;
-    gap: 0.15rem;
+    gap: 4px;
   }
 
   button {
-    padding: 0.2rem 0.6rem;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 14px;
   }
 
   /* A gap and a thin divider keep the theme switch apart from A−/A+, against misclicks. */
   .theme-toggle {
     position: relative;
-    margin-left: 1.25rem;
+    margin-left: 20px;
+    min-width: 104px; /* "Light theme" and "Dark theme" differ in width; this keeps A−/A+ still */
   }
 
   .theme-toggle::before {
-    content: '';
+    content: "";
     position: absolute;
-    left: -0.65rem;
+    left: -12px;
     top: 20%;
     bottom: 20%;
     border-left: 1px solid var(--color-line);

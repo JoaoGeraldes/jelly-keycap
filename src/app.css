@@ -97,6 +97,32 @@ p {
   margin: 0;
 }
 
+/* A card holds one topic, so a busy screen reads as a few calm, separate parts. */
+.card {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+/* A card's title and its short explanation, kept close together above the content. */
+.card-heading {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.card-heading h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.card-heading p {
+  max-width: 40rem;
+  color: var(--color-ink-muted);
+}
+
 input,
 textarea {
   width: 100%;

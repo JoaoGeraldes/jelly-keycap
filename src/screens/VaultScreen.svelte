@@ -8,7 +8,6 @@
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
-  import { BACKUP_URL } from "../lib/api.js";
   import { createVault, lock, newItem, session } from "../lib/vault.svelte.js";
 
   let selectedVaultId = $state(session.vaults[0]?.id);
@@ -118,7 +117,6 @@
     {/if}
 
     <div class="vaults-footer">
-      <a class="button-quiet" href={BACKUP_URL} download>Download backup</a>
       <button class="button-quiet" onclick={() => showPanel("how-it-works")}
         >How it works</button
       >

@@ -117,6 +117,23 @@ export async function deleteVault(vaultId, masterPassword) {
   session.items = session.items.filter((item) => item.vaultId !== vaultId);
 }
 
+/**
+ * Replaces the whole vault with a backup file. Asks for the current master password first.
+ * The server keeps a copy of the current vault, so this can be undone by restoring that copy.
+ * Afterwards the app locks, because the backup opens with the password it was made with.
+ */
+export async function restoreBackup(backupFile, masterPassword) {
+  await deriveCheckedMasterKey(masterPassword); // throws if the password is wrong
+  const backup = toBase64(new Uint8Array(await backupFile.arrayBuffer()));
+  const { safetyCopyPath } = await api.restoreBackup(backup);
+  const safetyCopyName = safetyCopyPath.split(/[\\/]/).pop(); // the Database screen shows the folder
+  lock(
+    `Backup restored. Unlock it with the master password you used when it was made. ` +
+      `Your previous vault is safe, saved next to it as ${safetyCopyName}.`,
+  );
+  return safetyCopyPath;
+}
+
 /** An unsaved login for the editor. It only reaches the server through saveItem. */
 export function newItem(vaultId) {
   return { id: crypto.randomUUID(), vaultId, type: 'login', title: '', username: '', password: '', url: '', notes: '' };

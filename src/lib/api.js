@@ -29,6 +29,9 @@ export const api = {
 
   listTables: () => request('GET', 'tables'),
   readTable: (name, page) => request('GET', `tables/${encodeURIComponent(name)}?page=${page}`),
+
+  getDatabaseFile: () => request('GET', 'database-file'),
+  restoreBackup: (backup) => request('POST', 'restore', { backup }),
 };
 
 export const BACKUP_URL = '/api/backup';
