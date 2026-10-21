@@ -5,17 +5,23 @@
  *
  * kind: 'browser' exists only in your browser's memory, 'server' is stored in the database,
  *       'step' is an algorithm.
+ * docs: links to the official documentation of an algorithm, shown under its note.
  */
 import { DEFAULT_KDF_PARAMS } from './crypto.js';
 
 const { memoryKiB, iterations, parallelism } = DEFAULT_KDF_PARAMS;
+
+const AES_GCM_SPEC = { title: 'NIST SP 800-38D: AES-GCM', url: 'https://csrc.nist.gov/pubs/sp/800/38/d/final' };
+const WEBCRYPTO_ENCRYPT = { title: 'MDN: SubtleCrypto.encrypt()', url: 'https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt' };
+const WEBCRYPTO_DECRYPT = { title: 'MDN: SubtleCrypto.decrypt()', url: 'https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt' };
 
 export const nodes = [
   // What you type, and what is generated at random
   { id: 'password', title: 'Master password', kind: 'browser', x: 0, y: 40,
     note: 'Typed by you to unlock. Never stored and never sent to the server.' },
   { id: 'random', title: 'Random generator', kind: 'step', x: 0, y: 220,
-    note: 'crypto.getRandomValues: the browser’s cryptographically secure random numbers.' },
+    note: 'crypto.getRandomValues: the browser’s cryptographically secure random numbers.',
+    docs: [{ title: 'MDN: Crypto.getRandomValues()', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues' }] },
   { id: 'vaultName', title: 'Vault name', kind: 'browser', x: 0, y: 440,
     note: 'The name you give a vault, like Work.' },
   { id: 'login', title: 'Login', kind: 'browser', x: 0, y: 520,
@@ -34,15 +40,18 @@ export const nodes = [
 
   // Deriving the master key
   { id: 'argon2', title: 'Argon2id', kind: 'step', x: 400, y: 40,
-    note: 'A deliberately slow, memory-hungry hash. Turns password + salt into a key, and makes every guess at your password cost the same time and memory.' },
+    note: 'A deliberately slow, memory-hungry hash. Turns password + salt into a key, and makes every guess at your password cost the same time and memory.',
+    docs: [{ title: 'RFC 9106: Argon2', url: 'https://www.rfc-editor.org/rfc/rfc9106' }] },
   { id: 'masterKey', title: 'Master key', kind: 'browser', x: 600, y: 40,
     note: 'The 256-bit key Argon2id produces. Kept only in memory while unlocked. Its only job is to lock and unlock the vault keys.' },
 
   // Encrypting
   { id: 'wrap', title: 'Wrap: AES-256-GCM', kind: 'step', x: 800, y: 220,
-    note: 'Encrypts the vault key with the master key. GCM also adds a tag that detects any change to the data.' },
+    note: 'Encrypts the vault key with the master key. GCM also adds a tag that detects any change to the data.',
+    docs: [AES_GCM_SPEC, WEBCRYPTO_ENCRYPT] },
   { id: 'encrypt', title: 'Encrypt: AES-256-GCM', kind: 'step', x: 800, y: 440,
-    note: 'Encrypts vault names and logins with the vault key. Built into every browser (WebCrypto).' },
+    note: 'Encrypts vault names and logins with the vault key. Built into every browser (WebCrypto).',
+    docs: [AES_GCM_SPEC, WEBCRYPTO_ENCRYPT] },
 
   // What the server stores
   { id: 'verifier', title: 'key_derivation.verifier', kind: 'server', x: 1000, y: 40,
@@ -56,9 +65,11 @@ export const nodes = [
 
   // Unlocking
   { id: 'unwrap', title: 'Unwrap: AES-256-GCM', kind: 'step', x: 1200, y: 130,
-    note: 'On unlock, the master key decrypts each vault key. It fails if the password is wrong or the data was changed.' },
+    note: 'On unlock, the master key decrypts each vault key. It fails if the password is wrong or the data was changed.',
+    docs: [AES_GCM_SPEC, WEBCRYPTO_DECRYPT] },
   { id: 'decrypt', title: 'Decrypt: AES-256-GCM', kind: 'step', x: 1200, y: 440,
-    note: 'The vault key decrypts names and logins. The GCM tag is checked first, so changed data fails instead of showing garbage.' },
+    note: 'The vault key decrypts names and logins. The GCM tag is checked first, so changed data fails instead of showing garbage.',
+    docs: [AES_GCM_SPEC, WEBCRYPTO_DECRYPT] },
   { id: 'onScreen', title: 'On your screen', kind: 'browser', x: 1400, y: 440,
     note: 'Your vaults and logins, readable only while unlocked. Locking or closing the tab forgets them and every key.' },
 ];

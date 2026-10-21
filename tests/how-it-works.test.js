@@ -29,3 +29,13 @@ test('no two nodes start in the same place', () => {
   const positions = nodes.map((node) => `${node.x},${node.y}`);
   assert.equal(new Set(positions).size, nodes.length);
 });
+
+test('every algorithm links to its documentation over https', () => {
+  for (const node of nodes.filter((node) => node.kind === 'step')) {
+    assert.ok(node.docs?.length, `"${node.id}" has no documentation link`);
+    for (const link of node.docs) {
+      assert.ok(link.title, node.id);
+      assert.match(link.url, /^https:\/\//, node.id);
+    }
+  }
+});

@@ -1,6 +1,7 @@
 <!--
   A node diagram of how the master password becomes keys and how data is encrypted.
-  Nodes can be dragged; arrows follow. Hover or focus a node to read its note.
+  Nodes can be dragged; arrows follow. Hover or focus a node to read its note; the note stays
+  open while the cursor is on it, so its documentation links can be clicked.
   The content lives in src/lib/how-it-works.js.
 -->
 <script>
@@ -73,24 +74,34 @@
       </svg>
 
       {#each nodes as node (node.id)}
-        <button
-          type="button"
-          class="node kind-{node.kind}"
+        <div
+          class="node"
+          role="group"
           style:left="{node.x}px"
           style:top="{node.y}px"
-          style:width="{NODE_WIDTH}px"
-          style:height="{NODE_HEIGHT}px"
-          onpointerdown={(event) => startDrag(event, node)}
-          onpointermove={moveDrag}
-          onpointerup={() => (drag = null)}
           onpointerenter={() => (highlightedId = node.id)}
           onpointerleave={() => (highlightedId = null)}
-          onfocus={() => (highlightedId = node.id)}
-          onblur={() => (highlightedId = null)}
+          onfocusin={() => (highlightedId = node.id)}
+          onfocusout={() => (highlightedId = null)}
         >
-          {node.title}
-          <span class="note" role="tooltip">{node.note}</span>
-        </button>
+          <button
+            type="button"
+            class="node-title kind-{node.kind}"
+            style:width="{NODE_WIDTH}px"
+            style:height="{NODE_HEIGHT}px"
+            onpointerdown={(event) => startDrag(event, node)}
+            onpointermove={moveDrag}
+            onpointerup={() => (drag = null)}
+          >
+            {node.title}
+          </button>
+          <div class="note" role="tooltip">
+            {node.note}
+            {#each node.docs ?? [] as link}
+              <a href={link.url} target="_blank" rel="noopener noreferrer">{link.title}</a>
+            {/each}
+          </div>
+        </div>
       {/each}
     </div>
   </div>
@@ -169,6 +180,9 @@
 
   .node {
     position: absolute;
+  }
+
+  .node-title {
     padding: 0 0.6rem;
     border: 2px solid;
     border-radius: var(--radius);
@@ -180,7 +194,7 @@
     user-select: none;
   }
 
-  .node:active {
+  .node-title:active {
     cursor: grabbing;
   }
 
@@ -203,6 +217,8 @@
     display: none;
     position: absolute;
     top: calc(100% + 6px);
+    flex-direction: column;
+    gap: 0.3rem;
     left: 0;
     z-index: 1;
     width: 16rem;
@@ -216,13 +232,30 @@
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
   }
 
+  /* Covers the gap between node and note, so moving the cursor down doesn't close the note. */
+  .note::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    height: 8px;
+  }
+
+  .note a {
+    color: var(--color-brass);
+    font-size: 0.8rem;
+  }
+
+  /* Open on hover, or on keyboard focus. A mouse click leaves focus behind but isn't
+     focus-visible, so the note still closes when the cursor leaves. */
   .node:hover,
-  .node:focus-visible {
+  .node:has(:focus-visible) {
     z-index: 2;
   }
 
   .node:hover .note,
-  .node:focus-visible .note {
-    display: block;
+  .node:has(:focus-visible) .note {
+    display: flex;
   }
 </style>
