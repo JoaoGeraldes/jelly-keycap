@@ -128,7 +128,7 @@
       <button class="button-quiet" onclick={() => showPanel("change-password")}
         >Change master password</button
       >
-      <button class="button-quiet" onclick={lock}>Lock</button>
+      <button class="button-quiet" onclick={() => lock()}>Lock</button>
     </div>
   </nav>
 
@@ -202,7 +202,7 @@
         />
       {/key}
     {:else}
-      <p class="empty">Pick a login to see it, or add a new one.</p>
+      <p class="empty">Pick an entry to see it, or add a new one.</p>
     {/if}
   </section>
 </div>
