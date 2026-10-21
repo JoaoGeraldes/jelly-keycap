@@ -1,0 +1,106 @@
+import { afterEach, beforeEach, test } from 'node:test';
+import assert from 'node:assert/strict';
+import { writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { openWindow, readRaw, startEmptyServer } from './support/browser.js';
+
+const PASSWORD = 'correct horse battery staple';
+
+let server;
+let window;
+beforeEach(async () => {
+  server = await startEmptyServer();
+  window = await openWindow();
+  await window.createMasterPassword(PASSWORD);
+});
+afterEach(() => server.stop());
+
+const personalVaultId = () => window.session.vaults[0].id;
+
+/** Locks and unlocks again, so the test sees what was really saved on the server. */
+async function relock() {
+  window.lock();
+  await window.unlock(PASSWORD);
+}
+
+test('a new master password comes with one empty vault called Personal', () => {
+  assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal']);
+  assert.deepEqual(window.session.items, []);
+});
+
+test('a saved login comes back after unlocking again', async () => {
+  const login = { ...window.newItem(personalVaultId()), title: 'GitHub', username: 'joao', password: 'github-secret' };
+  await window.saveItem(login);
+
+  await relock();
+
+  assert.deepEqual(window.session.items, [login]);
+});
+
+test('the server only ever stores encrypted names and logins', async () => {
+  await window.createVault('Work');
+  await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub', password: 'github-secret' });
+
+  const storedOnServer = (await readRaw('vaults')) + (await readRaw('items'));
+
+  for (const secret of ['Work', 'Personal', 'GitHub', 'github-secret']) {
+    assert.ok(!storedOnServer.includes(secret), `"${secret}" is readable on the server`);
+  }
+});
+
+test('editing a login updates it instead of adding a copy', async () => {
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub', password: 'old' });
+
+  await window.saveItem({ ...login, password: 'new' });
+  await relock();
+
+  assert.deepEqual(window.session.items.map((item) => item.password), ['new']);
+});
+
+test('a login moved to another vault stays readable there', async () => {
+  const workId = await window.createVault('Work');
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
+
+  await window.saveItem({ ...login, vaultId: workId });
+  await relock();
+
+  assert.equal(window.session.items[0].vaultId, workId);
+});
+
+test('a deleted login is gone', async () => {
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
+
+  await window.deleteItem(login.id);
+  await relock();
+
+  assert.deepEqual(window.session.items, []);
+});
+
+test('deleting a vault deletes its logins and leaves other vaults alone', async () => {
+  const workId = await window.createVault('Work');
+  await window.saveItem({ ...window.newItem(workId), title: 'AWS' });
+  await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
+
+  await window.deleteVault(workId);
+  await relock();
+
+  assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal']);
+  assert.deepEqual(window.session.items.map((item) => item.title), ['GitHub']);
+});
+
+test('the backup is a complete SQLite copy with no readable secrets', async () => {
+  await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub', password: 'github-secret' });
+
+  const backup = Buffer.from(await (await fetch('/api/backup')).arrayBuffer());
+  const backupPath = join(tmpdir(), `vault-test-backup-${process.pid}.sqlite`);
+  writeFileSync(backupPath, backup);
+  const backupDatabase = new DatabaseSync(backupPath);
+  const { itemCount } = backupDatabase.prepare('SELECT count(*) AS itemCount FROM items').get();
+  backupDatabase.close();
+  rmSync(backupPath);
+
+  assert.equal(itemCount, 1);
+  assert.ok(!backup.includes('github-secret'));
+});

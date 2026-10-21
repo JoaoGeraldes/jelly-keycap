@@ -1,0 +1,5 @@
+node_modules/
+dist/
+# Your vault. Back it up, but never commit it.
+*.sqlite
+*.sqlite-journal
