@@ -1,7 +1,7 @@
 /**
- * The "How it works" diagram: what happens between your master password and the database.
- * Read left to right: what you type and what is generated, the algorithms, what the server
- * stores, and how it is decrypted again on unlock.
+ * The "How it works" diagrams: what happens between your master password and the database.
+ * Two versions of the same story, read left to right: `simple` in everyday words with few
+ * nodes, and `technical` with every algorithm, key and database column.
  *
  * kind: 'browser' exists only in your browser's memory, 'server' is stored in the database,
  *       'step' is an algorithm.
@@ -15,7 +15,7 @@ const AES_GCM_SPEC = { title: 'NIST SP 800-38D: AES-GCM', url: 'https://csrc.nis
 const WEBCRYPTO_ENCRYPT = { title: 'MDN: SubtleCrypto.encrypt()', url: 'https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt' };
 const WEBCRYPTO_DECRYPT = { title: 'MDN: SubtleCrypto.decrypt()', url: 'https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/decrypt' };
 
-export const nodes = [
+const technicalNodes = [
   // What you type, and what is generated at random
   { id: 'password', title: 'Master password', kind: 'browser', x: 0, y: 40,
     note: 'Typed by you to unlock. Never stored and never sent to the server.' },
@@ -75,7 +75,7 @@ export const nodes = [
 ];
 
 /** [from, to]: the output of `from` is an input of `to`. */
-export const connections = [
+const technicalConnections = [
   ['password', 'argon2'],
   ['salt', 'argon2'],
   ['kdfParams', 'argon2'],
@@ -107,4 +107,56 @@ export const connections = [
   ['dataEnc', 'decrypt'],
   ['context', 'decrypt'],
   ['decrypt', 'onScreen'],
+];
+
+const simpleNodes = [
+  { id: 'password', title: 'Your master password', kind: 'browser', x: 0, y: 0,
+    note: 'The one password you remember. It never leaves your device, and nobody can reset it for you, so keep it somewhere safe.' },
+  { id: 'salt', title: 'A random ingredient', kind: 'server', x: 0, y: 100,
+    note: 'Made once when you set up, and kept with your vault (its technical name is “salt”). It isn’t secret. It makes your key unique, even if someone else picks the same password.' },
+  { id: 'makeKey', title: 'Slowly make a key', kind: 'step', x: 200, y: 50,
+    note: 'Your password and the ingredient are mixed into a key. This is deliberately slow: barely noticeable for you, but it makes trying millions of guessed passwords take far too long.' },
+  { id: 'masterKey', title: 'Your master key', kind: 'browser', x: 400, y: 50,
+    note: 'Exists only while your vault is unlocked. Locking, or closing the tab, throws it away.' },
+  { id: 'vaultKeys', title: 'A key for each vault', kind: 'browser', x: 600, y: 50,
+    note: 'Every vault has its own random key, and your master key locks them all. Changing your master password only re-locks these keys.' },
+  { id: 'logins', title: 'Your logins', kind: 'browser', x: 600, y: 200,
+    note: 'Usernames, passwords, websites and notes, as you type them.' },
+  { id: 'lock', title: 'Lock', kind: 'step', x: 800, y: 200,
+    note: 'Your logins are scrambled with the vault’s key on your device, before anything is sent. Scrambled, they look like random letters.' },
+  { id: 'server', title: 'The server', kind: 'server', x: 1000, y: 200,
+    note: 'Keeps only scrambled data. Someone who copies the whole file still can’t read a single password without your master password.' },
+  { id: 'unlock', title: 'Unlock', kind: 'step', x: 1200, y: 120,
+    note: 'When you unlock, your device downloads the scrambled data and unscrambles it itself, with your keys.' },
+  { id: 'onScreen', title: 'On your screen', kind: 'browser', x: 1400, y: 120,
+    note: 'Your logins, readable again, only on your device and only while unlocked.' },
+];
+
+const simpleConnections = [
+  ['password', 'makeKey'],
+  ['salt', 'makeKey'],
+  ['makeKey', 'masterKey'],
+  ['masterKey', 'vaultKeys'],
+  ['vaultKeys', 'lock'],
+  ['logins', 'lock'],
+  ['lock', 'server'],
+  ['server', 'unlock'],
+  ['vaultKeys', 'unlock'],
+  ['unlock', 'onScreen'],
+];
+
+/** The tabs of the "How it works" panel, in order. `legend` names each kind of node. */
+export const diagrams = [
+  {
+    name: 'Simple',
+    legend: { browser: 'Only on your device', server: 'Kept on the server', step: 'Locking or unlocking' },
+    nodes: simpleNodes,
+    connections: simpleConnections,
+  },
+  {
+    name: 'Technical',
+    legend: { browser: 'Only in browser memory', server: 'Stored in the database', step: 'Algorithm' },
+    nodes: technicalNodes,
+    connections: technicalConnections,
+  },
 ];

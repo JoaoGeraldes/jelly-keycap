@@ -1,11 +1,12 @@
 <!--
-  A node diagram of how the master password becomes keys and how data is encrypted.
+  A node diagram of how the master password becomes keys and how data is encrypted,
+  in two tabs: Simple (everyday words) and Technical.
   Nodes can be dragged; arrows follow. Hover or focus a node to read its note; the note stays
   open while the cursor is on it, so its documentation links can be clicked.
   The content lives in src/lib/how-it-works.js.
 -->
 <script>
-  import { connections, nodes as startingNodes } from '../lib/how-it-works.js';
+  import { diagrams } from '../lib/how-it-works.js';
 
   let { onClose } = $props();
 
@@ -13,10 +14,14 @@
   const NODE_HEIGHT = 44;
   const NOTE_ROOM = 140; // space under the lowest node, so its note isn't cut off
 
-  let nodes = $state(startingNodes.map((node) => ({ ...node })));
+  // A copy of every diagram's nodes, so dragged positions survive switching tabs.
+  let nodesByDiagram = $state(diagrams.map((diagram) => diagram.nodes.map((node) => ({ ...node }))));
+  let diagramIndex = $state(0);
   let highlightedId = $state(null);
   let drag = null; // { node, offsetX, offsetY } while a node is being dragged
 
+  const diagram = $derived(diagrams[diagramIndex]);
+  const nodes = $derived(nodesByDiagram[diagramIndex]);
   const nodesById = $derived(Object.fromEntries(nodes.map((node) => [node.id, node])));
   const canvasWidth = $derived(Math.max(...nodes.map((node) => node.x)) + NODE_WIDTH);
   const canvasHeight = $derived(Math.max(...nodes.map((node) => node.y)) + NODE_HEIGHT + NOTE_ROOM);
@@ -47,10 +52,18 @@
     <button class="button-quiet" onclick={onClose}>Close</button>
   </header>
 
+  <nav aria-label="Level of detail">
+    {#each diagrams as { name }, index}
+      <button class="button" class:is-selected={index === diagramIndex} onclick={() => (diagramIndex = index)}>
+        {name}
+      </button>
+    {/each}
+  </nav>
+
   <p class="legend">
-    <span class="swatch kind-browser"></span>Only in your browser
-    <span class="swatch kind-server"></span>Stored on the server
-    <span class="swatch kind-step"></span>Algorithm
+    {#each Object.entries(diagram.legend) as [kind, label]}
+      <span class="swatch kind-{kind}"></span>{label}
+    {/each}
   </p>
 
   <div class="canvas-scroll">
@@ -63,7 +76,7 @@
             </marker>
           {/each}
         </defs>
-        {#each connections as [fromId, toId]}
+        {#each diagram.connections as [fromId, toId]}
           {@const isHighlighted = highlightedId === fromId || highlightedId === toId}
           <path
             class:is-highlighted={isHighlighted}
@@ -121,6 +134,16 @@
 
   h1 {
     font-size: 1.5rem;
+  }
+
+  nav {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .is-selected {
+    border-color: var(--color-brass);
+    color: var(--color-brass);
   }
 
   .legend {
