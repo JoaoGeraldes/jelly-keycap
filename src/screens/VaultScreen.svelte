@@ -5,17 +5,19 @@
 <script>
   import ChangeMasterPassword from '../components/ChangeMasterPassword.svelte';
   import DatabaseViewer from '../components/DatabaseViewer.svelte';
+  import HowItWorks from '../components/HowItWorks.svelte';
   import ItemEditor from '../components/ItemEditor.svelte';
   import { BACKUP_URL } from '../lib/api.js';
   import { createVault, deleteVault, lock, newItem, session } from '../lib/vault.svelte.js';
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
-  let openPanel = $state(null); // 'change-password', 'database', or null to show the selected item
+  let openPanel = $state(null); // 'change-password', 'database', 'how-it-works', or null to show the selected item
   let searchText = $state('');
   let isNamingNewVault = $state(false);
   let newVaultName = $state('');
 
+  const isWidePanelOpen = $derived(openPanel === 'database' || openPanel === 'how-it-works');
   const selectedVault = $derived(session.vaults.find((vault) => vault.id === selectedVaultId));
   const isSelectedItemNew = $derived(selectedItem && !session.items.some((item) => item.id === selectedItem.id));
   const visibleItems = $derived(
@@ -71,7 +73,7 @@
 <div
   class="vault-screen"
   class:is-showing-detail={selectedItem || openPanel}
-  class:is-viewing-database={openPanel === 'database'}
+  class:is-showing-wide-panel={isWidePanelOpen}
 >
   <nav class="vaults" aria-label="Vaults">
     <p class="app-name">Vault</p>
@@ -94,6 +96,7 @@
 
     <div class="vaults-footer">
       <a class="button-quiet" href={BACKUP_URL} download>Download backup</a>
+      <button class="button-quiet" onclick={() => showPanel('how-it-works')}>How it works</button>
       <button class="button-quiet" onclick={() => showPanel('database')}>View database</button>
       <button class="button-quiet" onclick={() => showPanel('change-password')}>Change master password</button>
       <button class="button-quiet" onclick={lock}>Lock</button>
@@ -137,6 +140,8 @@
       <ChangeMasterPassword onClose={() => showItem(null)} />
     {:else if openPanel === 'database'}
       <DatabaseViewer onClose={() => showItem(null)} />
+    {:else if openPanel === 'how-it-works'}
+      <HowItWorks onClose={() => showItem(null)} />
     {:else if selectedItem}
       <!-- A different item remounts the editor, so it always starts from that item's saved values. -->
       {#key selectedItem.id}
@@ -175,12 +180,12 @@
     background: var(--color-surface);
   }
 
-  /* The database table needs the room more than the list of logins does. */
-  .is-viewing-database {
+  /* The database table and the diagram need the room more than the list of logins does. */
+  .is-showing-wide-panel {
     grid-template-columns: 14rem 1fr;
   }
 
-  .is-viewing-database .items {
+  .is-showing-wide-panel .items {
     display: none;
   }
 

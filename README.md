@@ -111,6 +111,9 @@ password has leaked, is not built yet.
 AES-GCM is built into every browser (WebCrypto), so the only crypto dependency is Argon2,
 via [hash-wasm](https://github.com/Daninet/hash-wasm).
 
+**How it works** in the app draws all of this as a diagram you can drag around, with a note on
+each step when you hover it. Its content lives in `src/lib/how-it-works.js`.
+
 ## Database
 
 The full schema with comments is in [`server/schema.sql`](server/schema.sql). It runs on
@@ -211,6 +214,7 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/master-password.test.js` | Creating, unlocking, locking, changing the master password | `vault.svelte.js`, `server/api.js`, `server/schema.sql`, `crypto.js` |
 | `tests/vaults-and-logins.test.js` | Vaults, logins, nothing readable on the server, backup | `vault.svelte.js`, `server/api.js`, `server/schema.sql` |
 | `tests/database-viewer.test.js` | Listing tables, every column shown, pages, unknown tables refused, read-only | `server/api.js`, `server/schema.sql` |
+| `tests/how-it-works.test.js` | The diagram: every arrow joins two real nodes, no node left unconnected | `src/lib/how-it-works.js` |
 | `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
 
 To run one file:
@@ -238,6 +242,7 @@ src/
     crypto.js           Argon2id, AES-GCM, base64, password generator
     api.js              One function per API route
     vault.svelte.js     Session state; encryption on the way out, decryption on the way in
+    how-it-works.js     Nodes and arrows of the "How it works" diagram
   screens/
     LockScreen.svelte   Create or enter the master password
     VaultScreen.svelte  Vaults, list of logins, and the selected login
@@ -245,6 +250,7 @@ src/
     ItemEditor.svelte   View and edit one login
     ChangeMasterPassword.svelte  Form to change the master password
     DatabaseViewer.svelte        Read-only view of every table, page by page
+    HowItWorks.svelte            Draggable diagram of the encryption
 tests/                  See Tests above
 vite.config.js          Svelte build, and the API mounted inside the dev server
 ```
