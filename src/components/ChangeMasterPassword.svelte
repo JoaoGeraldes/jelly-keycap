@@ -1,6 +1,7 @@
 <!-- Form to replace the master password. Shown in the detail column of the vault screen. -->
 <script>
   import { MINIMUM_MASTER_PASSWORD_LENGTH, changeMasterPassword } from '../lib/vault.svelte.js';
+  import CapsLockWarning from './CapsLockWarning.svelte';
 
   let { onClose } = $props();
 
@@ -55,6 +56,7 @@
     <label for="new-password-again">Type the new one again</label>
     <input id="new-password-again" type="password" bind:value={newPasswordAgain} autocomplete="new-password" required />
 
+    <CapsLockWarning />
     {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
     <div class="actions">

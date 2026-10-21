@@ -18,7 +18,7 @@
   let nodesByDiagram = $state(diagrams.map((diagram) => diagram.nodes.map((node) => ({ ...node }))));
   let diagramIndex = $state(0);
   let highlightedId = $state(null);
-  let drag = null; // { node, offsetX, offsetY } while a node is being dragged
+  let drag = null; // { node, zoom, offsetX, offsetY } while a node is being dragged
 
   const diagram = $derived(diagrams[diagramIndex]);
   const nodes = $derived(nodesByDiagram[diagramIndex]);
@@ -34,15 +34,18 @@
     return `M ${startX} ${startY} C ${startX + bend} ${startY}, ${endX - bend} ${endY}, ${endX} ${endY}`;
   }
 
+  // The canvas is zoomed by the text size setting, so cursor movement is divided by that zoom
+  // to keep the node under the cursor.
   function startDrag(event, node) {
     event.currentTarget.setPointerCapture(event.pointerId);
-    drag = { node, offsetX: event.clientX - node.x, offsetY: event.clientY - node.y };
+    const zoom = Number(getComputedStyle(document.documentElement).getPropertyValue('--text-scale')) || 1;
+    drag = { node, zoom, offsetX: event.clientX / zoom - node.x, offsetY: event.clientY / zoom - node.y };
   }
 
   function moveDrag(event) {
     if (!drag) return;
-    drag.node.x = Math.max(0, event.clientX - drag.offsetX);
-    drag.node.y = Math.max(0, event.clientY - drag.offsetY);
+    drag.node.x = Math.max(0, event.clientX / drag.zoom - drag.offsetX);
+    drag.node.y = Math.max(0, event.clientY / drag.zoom - drag.offsetY);
   }
 </script>
 
@@ -171,8 +174,12 @@
     background: var(--color-surface);
   }
 
+  /* Nodes are placed in pixels, so the whole canvas is zoomed with the text size setting.
+     Its text is set in px for the same reason, so it isn't enlarged twice. */
   .canvas {
     position: relative;
+    zoom: var(--text-scale);
+    font-size: 14px;
   }
 
   svg {
@@ -206,12 +213,12 @@
   }
 
   .node-title {
-    padding: 0 0.6rem;
+    padding: 0 0.6em;
     border: 2px solid;
     border-radius: var(--radius);
     background: var(--color-surface);
     color: var(--color-ink);
-    font: 600 0.85rem / 1.2 var(--font-ui);
+    font: 600 0.85em / 1.2 var(--font-ui);
     cursor: grab;
     touch-action: none; /* lets touch screens drag instead of scroll */
     user-select: none;
@@ -241,11 +248,11 @@
     position: absolute;
     top: calc(100% + 6px);
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.3em;
     left: 0;
     z-index: 1;
-    width: 16rem;
-    padding: 0.5rem 0.65rem;
+    width: 18em;
+    padding: 0.5em 0.65em;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
     background: var(--color-surface);
@@ -267,7 +274,7 @@
 
   .note a {
     color: var(--color-link);
-    font-size: 0.8rem;
+    font-size: 0.9em;
   }
 
   /* Open on hover, or on keyboard focus. A mouse click leaves focus behind but isn't

@@ -4,6 +4,7 @@
 -->
 <script>
   import { deleteVault } from '../lib/vault.svelte.js';
+  import CapsLockWarning from './CapsLockWarning.svelte';
 
   let { vault, loginCount, onDeleted, onCancel } = $props();
 
@@ -37,6 +38,7 @@
     <!-- svelte-ignore a11y_autofocus -->
     <input id="delete-vault-password" type="password" bind:value={password} autocomplete="current-password" required autofocus />
 
+    <CapsLockWarning />
     {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
     <div class="actions">

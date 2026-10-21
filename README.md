@@ -179,6 +179,9 @@ Set these as environment variables when running `npm start`:
 | `ALLOWED_HOSTNAMES` | `localhost,127.0.0.1` | Comma-separated names the browser may use to reach the server, for example `vault.home.lan` |
 | `VAULT_DATABASE` | `vault.sqlite` | Path to the database file |
 
+**Text size and theme.** The bar at the top right has **A−** / **A+** (80% to 160%) and a light/dark
+switch. Both are remembered in your browser; until you pick a theme, your system's is used.
+
 **Look.** The faint grain over the app is set at the top of `src/app.css`: `--noise-opacity`
 (0 turns it off), `--noise-size` and, inside `--noise-texture`, `baseFrequency` for how fine it is.
 
@@ -222,6 +225,8 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/vaults-and-logins.test.js` | Vaults, logins, nothing readable on the server, backup | `vault.svelte.js`, `server/api.js`, `server/schema.sql` |
 | `tests/database-viewer.test.js` | Listing tables, every column shown, pages, unknown tables refused, read-only | `server/api.js`, `server/schema.sql` |
 | `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js` |
+| `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is saved | `src/lib/display-settings.js` |
+| `tests/caps-lock.test.js` | Caps Lock warning turns on and off with key presses | `src/lib/caps-lock.svelte.js` |
 | `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
 
 To run one file:
@@ -243,12 +248,14 @@ server/
   start.js              Reads the settings and starts server.js (`npm start`)
 src/
   main.js               Mounts the app
-  App.svelte            Lock screen or vault screen
+  App.svelte            Top bar, then the lock screen or the vault screen
   app.css               Color tokens for both themes (dark follows VS Code's Dark Modern), base elements, buttons
   lib/
     crypto.js           Argon2id, AES-GCM, base64, password generator
     api.js              One function per API route
     vault.svelte.js     Session state; encryption on the way out, decryption on the way in
+    display-settings.js Text size and theme: load, apply, remember
+    caps-lock.svelte.js Whether Caps Lock is on, for the warning under password fields
     how-it-works.js     Nodes and arrows of the "How it works" diagrams (Simple and Technical)
   screens/
     LockScreen.svelte   Create or enter the master password
@@ -256,6 +263,8 @@ src/
   components/
     ItemEditor.svelte   View and edit one login
     ChangeMasterPassword.svelte  Form to change the master password
+    DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
+    CapsLockWarning.svelte       "Caps Lock is on" under every master password field
     DeleteVaultDialog.svelte     Asks for the master password before deleting a vault
     DatabaseViewer.svelte        Read-only view of every table, page by page
     HowItWorks.svelte            Draggable diagram of the encryption

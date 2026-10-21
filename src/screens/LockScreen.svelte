@@ -10,6 +10,7 @@
     session,
     unlock,
   } from '../lib/vault.svelte.js';
+  import CapsLockWarning from '../components/CapsLockWarning.svelte';
 
   let isFirstRun = $state(null); // null while asking the server
   let password = $state('');
@@ -73,6 +74,7 @@
         <input id="master-password-again" type="password" bind:value={passwordAgain} autocomplete="new-password" required />
       {/if}
 
+      <CapsLockWarning />
       {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
       <button class="button-primary" disabled={isWorking}>
@@ -90,7 +92,7 @@
     place-items: center;
     align-content: center;
     gap: 2rem;
-    min-height: 100dvh;
+    min-height: 100%;
     padding: 1.5rem;
   }
 

@@ -5,6 +5,8 @@
  * Light: muted sage paper with a brass accent, the colors of a key and a lock.
  * Dark: VS Code's default "Dark Modern" theme (colors from its theme file), including its
  *       denser 13px type and small corner radius.
+ * The theme (data-theme on <html>) and --text-scale are set by src/lib/display-settings.js.
+ * 1rem is the body text size, so every rem-based size follows --text-scale.
  * Fonts are the system's own, so the app works offline and loads nothing from the internet.
  */
 
@@ -29,6 +31,7 @@
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-size: 15px;
+  --text-scale: 1;
   --radius: 8px;
 
   /* Noise: a faint grain over the whole app. Set --noise-opacity to 0 to turn it off.
@@ -36,32 +39,34 @@
   --noise-opacity: 0.06;
   --noise-size: 150px;
   --noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  color-scheme: light; /* native scrollbars and form controls follow the theme too */
+  font-size: calc(var(--font-size) * var(--text-scale));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #1f1f1f; /* editor.background */
-    --color-sidebar: #181818; /* sideBar.background */
-    --color-surface: #181818;
-    --color-control: #313131; /* input.background */
-    --color-control-border: #3c3c3c; /* input.border */
-    --color-ink: #cccccc; /* foreground */
-    --color-ink-muted: #9d9d9d; /* descriptionForeground */
-    --color-line: #2b2b2b; /* sideBar.border */
-    --color-accent: #0078d4; /* button.background, focusBorder */
-    --color-on-accent: #ffffff;
-    --color-link: #4daafc; /* textLink.foreground */
-    --color-hover: #2a2d2e; /* list.hoverBackground */
-    --color-selection: #04395e; /* list.activeSelectionBackground */
-    --color-danger: #f85149; /* errorForeground */
-    --color-solid: #3c3c3c;
-    --color-on-solid: #ffffff;
+:root[data-theme="dark"] {
+  --color-background: #1f1f1f; /* editor.background */
+  --color-sidebar: #181818; /* sideBar.background */
+  --color-surface: #181818;
+  --color-control: #313131; /* input.background */
+  --color-control-border: #3c3c3c; /* input.border */
+  --color-ink: #cccccc; /* foreground */
+  --color-ink-muted: #9d9d9d; /* descriptionForeground */
+  --color-line: #2b2b2b; /* sideBar.border */
+  --color-accent: #0078d4; /* button.background, focusBorder */
+  --color-on-accent: #ffffff;
+  --color-link: #4daafc; /* textLink.foreground */
+  --color-hover: #2a2d2e; /* list.hoverBackground */
+  --color-selection: #04395e; /* list.activeSelectionBackground */
+  --color-danger: #f85149; /* errorForeground */
+  --color-solid: #3c3c3c;
+  --color-on-solid: #ffffff;
 
-    --font-size: 13px;
-    --radius: 2px;
-    --noise-opacity: 0.04;
-    font-size: 13px; /* scales every rem-based size to VS Code's density */
-  }
+  --font-size: 13px;
+  --radius: 2px;
+  --noise-opacity: 0.04;
+
+  color-scheme: dark;
 }
 
 * {
@@ -72,7 +77,7 @@ body {
   margin: 0;
   background: var(--color-background);
   color: var(--color-ink);
-  font: var(--font-size) / 1.5 var(--font-ui);
+  font: 1rem / 1.5 var(--font-ui);
 }
 
 /* The noise layer sits above everything but lets every click through. */
