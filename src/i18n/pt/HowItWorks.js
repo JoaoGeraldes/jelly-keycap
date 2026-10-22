@@ -61,7 +61,7 @@ export default {
   technical: {
     name: "Técnico",
     legend: {
-      browser: "Só na memória do navegador",
+      browser: "Só na memória do browser",
       server: "Guardado na base de dados",
       step: "Algoritmo",
     },
@@ -72,7 +72,7 @@ export default {
       },
       random: {
         title: "Gerador aleatório",
-        note: "crypto.getRandomValues: os números aleatórios criptograficamente seguros do navegador.",
+        note: "crypto.getRandomValues: os números aleatórios criptograficamente seguros do browser.",
       },
       vaultName: {
         title: "Nome do cofre",
@@ -116,7 +116,7 @@ export default {
       },
       encrypt: {
         title: "Encriptar: AES-256-GCM",
-        note: "Encripta os nomes dos cofres e as entradas com a chave do cofre. Incluído em todos os navegadores (WebCrypto).",
+        note: "Encripta os nomes dos cofres e as entradas com a chave do cofre. Incluído em todos os browsers (WebCrypto).",
       },
       verifier: {
         title: "key_derivation.verifier",

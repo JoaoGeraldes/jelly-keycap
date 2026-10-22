@@ -6,7 +6,7 @@ const { memoryKiB, iterations } = DEFAULT_KDF_PARAMS;
 export default {
   title: 'About',
   close: 'Close',
-  motto: 'Soft on the outside, encrypted on the inside.',
+  motto: 'Zero knowledge. One file. Your keys.',
   description:
     'A minimal, [self-hosted](readme) password manager. Your secrets live in one file on your own computer, and are [encrypted in your browser](encryption) before they are ever saved.',
   madeByTitle: 'Made by',
@@ -30,5 +30,5 @@ export default {
     ['telemetry', 'none'],
     ['cloud', 'none, unless you put it there'],
   ],
-  signOff: 'Made with care and a little jelly. No trackers were harmed in the making of this app.',
+  signOff: 'No telemetry. No accounts. No cloud. Just a SQLite file and some math.',
 };

@@ -3,28 +3,32 @@
   The parent remounts this component whenever a different login is picked.
 -->
 <script>
-  import { generatePassword } from '../lib/crypto.js';
-  import { textFor } from '../lib/i18n.svelte.js';
-  import { deleteItem, saveItem } from '../lib/vault.svelte.js';
+  import { generatePassword } from "../lib/crypto.js";
+  import { textFor } from "../lib/i18n.svelte.js";
+  import { deleteItem, saveItem } from "../lib/vault.svelte.js";
 
   let { item, isNew, onSaved, onClose } = $props();
 
-  const text = textFor('ItemEditor');
+  const text = textFor("ItemEditor");
 
   // A copy on purpose: edits stay in the draft until Save. A different item remounts this component.
   // svelte-ignore state_referenced_locally
   let draft = $state({ ...item });
   let isPasswordVisible = $state(false);
   let copiedField = $state(null);
-  let errorMessage = $state('');
+  let errorMessage = $state("");
 
-  const hasUnsavedChanges = $derived(JSON.stringify(draft) !== JSON.stringify(item));
+  const hasUnsavedChanges = $derived(
+    JSON.stringify(draft) !== JSON.stringify(item),
+  );
   // Always link with http(s), so a saved "javascript:" address can never run as code.
-  const websiteLink = $derived(/^https?:\/\//i.test(draft.url) ? draft.url : `https://${draft.url}`);
+  const websiteLink = $derived(
+    /^https?:\/\//i.test(draft.url) ? draft.url : `https://${draft.url}`,
+  );
 
   async function save(event) {
     event.preventDefault();
-    errorMessage = '';
+    errorMessage = "";
     try {
       onSaved(await saveItem(draft));
     } catch (error) {
@@ -57,26 +61,44 @@
 </script>
 
 {#snippet copyButton(field)}
-  <button type="button" class="button" onclick={() => copy(field)} disabled={!draft[field]}>
+  <button
+    type="button"
+    class="button"
+    onclick={() => copy(field)}
+    disabled={!draft[field]}
+  >
     {copiedField === field ? text.copied : text.copy}
   </button>
 {/snippet}
 
 <form class="item-editor" onsubmit={save}>
-  <button type="button" class="button-quiet back" onclick={onClose}><span aria-hidden="true">←</span> {text.backToList}</button>
+  <button type="button" class="button-quiet back" onclick={onClose}
+    ><span aria-hidden="true">←</span> {text.backToList}</button
+  >
 
   <div class="field">
     <label for="item-title">{text.nameLabel}</label>
     <!-- A new entry starts with its name, so typing can start right away. Focused directly because
          Svelte's autofocus is skipped when something else (here, the New entry button) has focus. -->
-    <input id="item-title" class="title-input" bind:value={draft.title} {@attach (input) => isNew && input.focus()} required />
+    <input
+      id="item-title"
+      class="title-input"
+      bind:value={draft.title}
+      {@attach (input) => isNew && input.focus()}
+      required
+    />
   </div>
 
   <div class="field">
     <label for="item-username">{text.usernameLabel}</label>
     <div class="field-row">
-      <input id="item-username" bind:value={draft.username} autocomplete="off" spellcheck="false" />
-      {@render copyButton('username')}
+      <input
+        id="item-username"
+        bind:value={draft.username}
+        autocomplete="off"
+        spellcheck="false"
+      />
+      {@render copyButton("username")}
     </div>
   </div>
 
@@ -86,25 +108,45 @@
       <input
         id="item-password"
         class="password-input"
-        type={isPasswordVisible ? 'text' : 'password'}
+        type={isPasswordVisible ? "text" : "password"}
         bind:value={draft.password}
         autocomplete="new-password"
         spellcheck="false"
       />
-      <button type="button" class="button" onclick={() => (isPasswordVisible = !isPasswordVisible)}>
+      <button
+        type="button"
+        class="button"
+        onclick={() => (isPasswordVisible = !isPasswordVisible)}
+      >
         {isPasswordVisible ? text.hide : text.show}
       </button>
-      {@render copyButton('password')}
+      {@render copyButton("password")}
     </div>
-    <button type="button" class="button-quiet generate" onclick={useGeneratedPassword}>{text.generatePassword}</button>
+    <button
+      type="button"
+      class="button-quiet generate"
+      onclick={useGeneratedPassword}>{text.generatePassword}</button
+    >
   </div>
 
   <div class="field">
     <label for="item-url">{text.websiteLabel}</label>
     <div class="field-row">
-      <input id="item-url" bind:value={draft.url} inputmode="url" autocomplete="off" spellcheck="false" placeholder="github.com" />
+      <input
+        id="item-url"
+        bind:value={draft.url}
+        inputmode="url"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="github.com"
+      />
       {#if draft.url}
-        <a class="button" href={websiteLink} target="_blank" rel="noopener noreferrer">{text.open}</a>
+        <a
+          class="button"
+          href={websiteLink}
+          target="_blank"
+          rel="noopener noreferrer">{text.open}</a
+        >
       {/if}
     </div>
   </div>
@@ -122,10 +164,16 @@
       {isNew || hasUnsavedChanges ? text.save : text.saved}
     </button>
     {#if isNew || hasUnsavedChanges}
-      <button type="button" class="button" onclick={cancel}>{isNew ? text.cancel : text.discardChanges}</button>
+      <button type="button" class="button" onclick={cancel}
+        >{isNew ? text.cancel : text.discardChanges}</button
+      >
     {/if}
     {#if !isNew}
-      <button type="button" class="button-quiet is-danger delete" onclick={remove}>{text.delete}</button>
+      <button
+        type="button"
+        class="button-quiet is-danger delete"
+        onclick={remove}>{text.delete}</button
+      >
     {/if}
   </div>
 </form>
@@ -135,6 +183,22 @@
     display: grid;
     gap: 1.25rem;
     max-width: 36rem;
+    animation: come-into-focus 0.35s ease-out;
+  }
+
+  /* Opening an entry brings it from flat grey into full contrast: a quiet sign that the panel
+     changed. The editor is rebuilt for every entry, so it plays each time one is picked.
+     No fill-mode, so once done the filter is gone and costs nothing. */
+  @keyframes come-into-focus {
+    from {
+      filter: contrast(0.8);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .item-editor {
+      animation: none;
+    }
   }
 
   .title-input {
