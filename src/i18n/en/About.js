@@ -11,6 +11,8 @@ export default {
     'A minimal, [self-hosted](readme) password manager. Your secrets live in one file on your own computer, and are [encrypted in your browser](encryption) before they are ever saved.',
   madeByTitle: 'Made by',
   madeBy: '[João Geraldes](author), with help from everyone who [reports a bug](issues), suggests an idea or [sends a fix](pulls).',
+  builtWithAi:
+    'Built with the help of AI coding tools ([Claude](claude)). Every change is reviewed and tested before it’s committed.',
   viewSource: 'View the source on GitHub',
   openSourceTitle: 'Free and open source',
   openSource:

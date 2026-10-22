@@ -17,6 +17,7 @@
     pulls: `${REPOSITORY}/pulls`,
     license: `${REPOSITORY}/blob/main/LICENSE`,
     author: "https://github.com/JoaoGeraldes",
+    claude: "https://claude.ai",
     aesGcm: "https://csrc.nist.gov/pubs/sp/800/38/d/final",
     argon2: "https://www.rfc-editor.org/rfc/rfc9106",
     sqlite: "https://sqlite.org",
@@ -64,6 +65,7 @@
     <div class="card-heading">
       <h2>{text.madeByTitle}</h2>
       <p>{@render linked(text.madeBy)}</p>
+      <p>{@render linked(text.builtWithAi)}</p>
     </div>
     <a class="button source" href={REPOSITORY} target="_blank" rel="noopener noreferrer">{text.viewSource}</a>
   </section>

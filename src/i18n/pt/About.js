@@ -11,6 +11,8 @@ export default {
     'Um gestor de palavras-passe minimalista e [alojado por si](readme). Os seus segredos vivem num único ficheiro no seu próprio computador, e são [encriptados no navegador](encryption) antes de serem guardados.',
   madeByTitle: 'Feito por',
   madeBy: '[João Geraldes](author), com a ajuda de todos os que [reportam um erro](issues), sugerem uma ideia ou [enviam uma correção](pulls).',
+  builtWithAi:
+    'Feito com a ajuda de ferramentas de programação com IA ([Claude](claude)). Cada alteração é revista e testada antes de ser guardada no repositório.',
   viewSource: 'Ver o código no GitHub',
   openSourceTitle: 'Livre e de código aberto',
   openSource:
