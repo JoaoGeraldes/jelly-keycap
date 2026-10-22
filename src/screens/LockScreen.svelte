@@ -12,6 +12,7 @@
     unlock,
   } from '../lib/vault.svelte.js';
   import CapsLockWarning from '../components/CapsLockWarning.svelte';
+  import Ragdoll from '../components/Ragdoll.svelte';
 
   const text = textFor('LockScreen');
 
@@ -20,6 +21,7 @@
   let passwordAgain = $state('');
   let errorMessage = $state('');
   let isWorking = $state(false);
+  let keystrokes = $state(0); // only counted, to knock over and kick the burglar
 
   hasMasterPassword()
     .then((hasOne) => (isFirstRun = !hasOne))
@@ -43,10 +45,7 @@
 </script>
 
 <main class="lock-screen">
-  <svg class="keyhole" viewBox="0 0 48 72" aria-hidden="true">
-    <circle cx="24" cy="20" r="16" />
-    <path d="M14 30 L8 70 H40 L34 30 Z" />
-  </svg>
+  <Ragdoll {keystrokes} />
 
   {#if isFirstRun !== null}
     <form onsubmit={submit}>
@@ -66,6 +65,7 @@
         id="master-password"
         type="password"
         bind:value={password}
+        oninput={() => keystrokes++}
         minlength={isFirstRun ? MINIMUM_MASTER_PASSWORD_LENGTH : undefined}
         autocomplete={isFirstRun ? 'new-password' : 'current-password'}
         required
@@ -74,7 +74,7 @@
 
       {#if isFirstRun}
         <label for="master-password-again">{text.typeItAgainLabel}</label>
-        <input id="master-password-again" type="password" bind:value={passwordAgain} autocomplete="new-password" required />
+        <input id="master-password-again" type="password" bind:value={passwordAgain} oninput={() => keystrokes++} autocomplete="new-password" required />
       {/if}
 
       <CapsLockWarning />
@@ -97,12 +97,6 @@
     gap: 2rem;
     min-height: 100%;
     padding: 1.5rem;
-  }
-
-  /* The one bold element in the app: a large keyhole in the accent color. */
-  .keyhole {
-    width: 4.5rem;
-    fill: var(--color-accent);
   }
 
   form {

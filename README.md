@@ -333,6 +333,8 @@ src/
     ChangeMasterPassword.svelte  The "Master password" card in Settings
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
+    Ragdoll.svelte               The lock screen's masked burglar: tiptoes until you type, then a ragdoll each keystroke kicks
+    PinTumbler.svelte            Alternative lock screen toy (not shown): pins jump as you type, line up while unlocking
     DeleteVaultDialog.svelte     Asks for the master password before deleting a vault with logins in it
     DatabaseViewer.svelte        Where the file is, and a read-only view of every table, page by page
     RestoreBackup.svelte         Restore a backup (current vault saved first)
