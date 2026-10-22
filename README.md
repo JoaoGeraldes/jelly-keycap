@@ -206,6 +206,7 @@ Please read these before putting this on a network.
 - **Deleting a vault and restoring a backup ask for the master password.** That stops someone at
   your unlocked screen. The check runs in the browser, so it does not replace access control on
   the server itself (see the point above). A restore always saves the current vault first.
+  An empty vault is deleted without asking, since there is nothing in it to lose.
 - **The database file's full path is shown** in the app (and by `GET /api/database-file`). On a
   shared server, that reveals the folder name, which may include a user name.
 - **HTTPS is required anywhere except localhost.** Browsers only enable WebCrypto and the
@@ -278,7 +279,7 @@ src/
     ChangeMasterPassword.svelte  Form to change the master password
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
-    DeleteVaultDialog.svelte     Asks for the master password before deleting a vault
+    DeleteVaultDialog.svelte     Asks for the master password before deleting a vault with logins in it
     DatabaseViewer.svelte        Where the file is, and a read-only view of every table, page by page
     RestoreBackup.svelte         Restore a backup (current vault saved first)
     HowItWorks.svelte            Draggable diagram of the encryption
