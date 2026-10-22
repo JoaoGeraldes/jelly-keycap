@@ -4,9 +4,9 @@
   Restoring a backup lives at the bottom, in RestoreBackup.svelte.
 -->
 <script>
-  import { BACKUP_URL, api } from '../lib/api.js';
-  import { formatCell, formatSize, isTimestampColumn } from '../lib/format.js';
-  import RestoreBackup from './RestoreBackup.svelte';
+  import { BACKUP_URL, api } from "../lib/api.js";
+  import { formatCell, formatSize, isTimestampColumn } from "../lib/format.js";
+  import RestoreBackup from "./RestoreBackup.svelte";
 
   let { onClose } = $props();
 
@@ -30,7 +30,7 @@
 
 <div class="database-viewer">
   <header>
-    <h1>Database</h1>
+    <h1>My Database</h1>
     <button class="button-quiet" onclick={onClose}>Close</button>
   </header>
 
@@ -38,12 +38,17 @@
     <section class="card">
       <div class="card-heading">
         <h2>Where your vault is stored</h2>
-        <p>Your whole vault is this one file ({formatSize(databaseFile.sizeBytes)}).</p>
+        <p>
+          Your whole vault is this one file ({formatSize(
+            databaseFile.sizeBytes,
+          )}).
+        </p>
       </div>
       <code class="path">{databaseFile.path}</code>
       <p class="explanation">
-        Download a backup to keep a copy somewhere safe, like a USB stick or a cloud folder. It stays encrypted, and
-        copying the file while the app is closed works too.
+        Download a backup to keep a copy somewhere safe, like a USB stick or a
+        cloud folder. It stays encrypted, and copying the file while the app is
+        closed works too.
       </p>
       <a class="button download" href={BACKUP_URL} download>Download backup</a>
     </section>
@@ -53,14 +58,18 @@
     <div class="card-heading">
       <h2>What’s inside</h2>
       <p>
-        Exactly what is stored in that file. Anything secret is encrypted. Dates are shown in your local time; point at
-        one to see the stored value.
+        Exactly what is stored in that file. Anything secret is encrypted. Dates
+        are shown in your local time; point at one to see the stored value.
       </p>
     </div>
 
     <nav aria-label="Tables">
       {#each tables as table (table.name)}
-        <button class="button" class:is-selected={table.name === tableName} onclick={() => showPage(table.name, 1)}>
+        <button
+          class="button"
+          class:is-selected={table.name === tableName}
+          onclick={() => showPage(table.name, 1)}
+        >
           {table.name} ({table.rowCount})
         </button>
       {/each}
@@ -80,23 +89,40 @@
                 {#each page.columns as column}
                   <td
                     class:is-timestamp={isTimestampColumn(column)}
-                    title={isTimestampColumn(column) ? `Stored as ${row[column]}` : undefined}
+                    title={isTimestampColumn(column)
+                      ? `Stored as ${row[column]}`
+                      : undefined}
                   >
                     {formatCell(column, row[column])}
                   </td>
                 {/each}
               </tr>
             {:else}
-              <tr><td class="empty" colspan={page.columns.length}>This table is empty.</td></tr>
+              <tr
+                ><td class="empty" colspan={page.columns.length}
+                  >This table is empty.</td
+                ></tr
+              >
             {/each}
           </tbody>
         </table>
       </div>
 
       <footer>
-        <button class="button" disabled={page.page <= 1} onclick={() => showPage(tableName, page.page - 1)}>Previous</button>
-        <span>Page {page.page} of {page.pageCount}, {page.rowCount} {page.rowCount === 1 ? 'row' : 'rows'}</span>
-        <button class="button" disabled={page.page >= page.pageCount} onclick={() => showPage(tableName, page.page + 1)}>
+        <button
+          class="button"
+          disabled={page.page <= 1}
+          onclick={() => showPage(tableName, page.page - 1)}>Previous</button
+        >
+        <span
+          >Page {page.page} of {page.pageCount}, {page.rowCount}
+          {page.rowCount === 1 ? "row" : "rows"}</span
+        >
+        <button
+          class="button"
+          disabled={page.page >= page.pageCount}
+          onclick={() => showPage(tableName, page.page + 1)}
+        >
           Next
         </button>
       </footer>
@@ -135,7 +161,9 @@
     padding: 0.4rem 0.6rem;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
-    background: var(--color-background); /* stands out from the card it sits in */
+    background: var(
+      --color-background
+    ); /* stands out from the card it sits in */
     font-family: var(--font-mono);
     overflow-wrap: anywhere;
     user-select: all; /* one click selects the whole path, ready to copy */
@@ -159,8 +187,10 @@
     color: var(--color-accent);
   }
 
+  /* Scrolls both ways inside a fixed height, so a full page of rows doesn't stretch the screen. */
   .table-scroll {
-    overflow-x: auto;
+    overflow: auto;
+    max-height: 500px;
     border: 1px solid var(--color-line);
     border-radius: var(--radius);
   }
@@ -179,7 +209,10 @@
     vertical-align: top;
   }
 
+  /* Column names stay in view while scrolling down. */
   th {
+    position: sticky;
+    top: 0;
     background: var(--color-background);
     white-space: nowrap;
   }
