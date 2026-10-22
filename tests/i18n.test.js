@@ -15,6 +15,19 @@ test('every language has the same texts as English, of the same kind', () => {
   for (const code of Object.keys(LANGUAGES)) assertSameShape(TRANSLATIONS[code], TRANSLATIONS.en, code);
 });
 
+/** The names of every [words](name) link in a group of texts, sorted. */
+function linkNames(texts) {
+  return [...JSON.stringify(texts).matchAll(/\]\((\w+)\)/g)].map((match) => match[1]).sort();
+}
+
+test('every language links to the same places as English', () => {
+  for (const code of Object.keys(LANGUAGES)) {
+    for (const [component, texts] of Object.entries(TRANSLATIONS.en)) {
+      assert.deepEqual(linkNames(TRANSLATIONS[code][component]), linkNames(texts), `${code}/${component}`);
+    }
+  }
+});
+
 test('texts follow the chosen language', () => {
   const text = textFor('ItemEditor');
 

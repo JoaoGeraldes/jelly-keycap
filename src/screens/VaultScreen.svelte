@@ -31,9 +31,8 @@
   let newVaultName = $state("");
   let isMenuOpen = $state(false); // phones only; on wider screens the menu is always shown
 
-  const isWidePanelOpen = $derived(
-    openPanel === "database" || openPanel === "how-it-works",
-  );
+  // Every panel takes the list's place: none of them is about the logins in the chosen vault.
+  const isWidePanelOpen = $derived(openPanel !== null);
   const selectedVault = $derived(
     session.vaults.find((vault) => vault.id === selectedVaultId),
   );
@@ -338,7 +337,7 @@
     background: var(--color-surface); /* hides the rows scrolling underneath */
   }
 
-  /* The database table and the diagram need the room more than the list of logins does. */
+  /* A panel (settings, about, database, how it works) gets the list's room too. */
   .is-showing-wide-panel {
     grid-template-columns: 14rem 1fr;
   }

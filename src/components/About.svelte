@@ -7,7 +7,43 @@
 
   const text = textFor("About");
   const REPOSITORY = "https://github.com/JoaoGeraldes/password-manager-2026";
+
+  // Every address the texts link to, by the name they use for it.
+  const LINKS = {
+    repository: REPOSITORY,
+    readme: `${REPOSITORY}#readme`,
+    encryption: `${REPOSITORY}#encryption`,
+    issues: `${REPOSITORY}/issues`,
+    pulls: `${REPOSITORY}/pulls`,
+    license: `${REPOSITORY}/blob/main/LICENSE`,
+    author: "https://github.com/JoaoGeraldes",
+    aesGcm: "https://csrc.nist.gov/pubs/sp/800/38/d/final",
+    argon2: "https://www.rfc-editor.org/rfc/rfc9106",
+    sqlite: "https://sqlite.org",
+    node: "https://nodejs.org",
+    svelte: "https://svelte.dev",
+  };
+
+  // Texts mark a link as [words](name), so each language puts its links wherever its own
+  // sentence needs them. This splits a text into plain pieces and links.
+  function withLinks(content) {
+    return content
+      .split(/(\[[^\]]+\]\(\w+\))/)
+      .filter(Boolean)
+      .map((piece) => {
+        const link = piece.match(/^\[([^\]]+)\]\((\w+)\)$/);
+        return link ? { words: link[1], url: LINKS[link[2]] } : piece;
+      });
+  }
 </script>
+
+{#snippet linked(content)}
+  {#each withLinks(content) as piece}{#if typeof piece === "string"}{piece}{:else}<a
+        href={piece.url}
+        target="_blank"
+        rel="noopener noreferrer">{piece.words}</a
+      >{/if}{/each}
+{/snippet}
 
 <div class="about">
   <header>
@@ -20,14 +56,14 @@
     <div class="card-heading">
       <h2>Jellock</h2>
       <p class="motto">{text.motto}</p>
-      <p>{text.description}</p>
+      <p>{@render linked(text.description)}</p>
     </div>
   </section>
 
   <section class="card">
     <div class="card-heading">
       <h2>{text.madeByTitle}</h2>
-      <p>{text.madeBy}</p>
+      <p>{@render linked(text.madeBy)}</p>
     </div>
     <a class="button source" href={REPOSITORY} target="_blank" rel="noopener noreferrer">{text.viewSource}</a>
   </section>
@@ -35,30 +71,20 @@
   <section class="card">
     <div class="card-heading">
       <h2>{text.openSourceTitle}</h2>
-      <p>{text.openSource}</p>
-      <p>{text.contribute}</p>
+      <p>{@render linked(text.openSource)}</p>
+      <p>{@render linked(text.contribute)}</p>
     </div>
-    <nav class="links" aria-label={text.openSourceTitle}>
-      <a href="{REPOSITORY}/issues" target="_blank" rel="noopener noreferrer">{text.reportBug}</a>
-      <a href="{REPOSITORY}/pulls" target="_blank" rel="noopener noreferrer">{text.pullRequests}</a>
-      <a href="{REPOSITORY}/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">{text.license}</a>
-    </nav>
-    <!-- Security problems shouldn't be posted where anyone can read them before they're fixed. -->
-    <p class="security">
-      {text.securityIssue}
-      <a href="{REPOSITORY}/security/advisories/new" target="_blank" rel="noopener noreferrer">{text.reportPrivately}</a>
-    </p>
   </section>
 
   <section class="card">
     <div class="card-heading">
       <h2>{text.underTheHoodTitle}</h2>
-      <p>{text.underTheHood}</p>
+      <p>{@render linked(text.underTheHood)}</p>
     </div>
     <dl class="specs">
       {#each text.specs as [label, value] (label)}
         <dt>{label}</dt>
-        <dd>{value}</dd>
+        <dd>{@render linked(value)}</dd>
       {/each}
     </dl>
   </section>
@@ -105,19 +131,9 @@
     justify-self: start;
   }
 
-  .links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
-  }
-
   a:not(.button) {
     color: var(--color-link);
     font-weight: 600;
-  }
-
-  .security {
-    color: var(--color-ink-muted);
   }
 
   /* A small spec sheet: labels on the left, values on the right, like a terminal readout. */

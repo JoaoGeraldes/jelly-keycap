@@ -370,5 +370,4 @@ Each of these fits the current design without changing it:
 ## License
 
 [MIT](LICENSE) © 2026 João Geraldes. Contributions are welcome: open an
-[issue](https://github.com/JoaoGeraldes/password-manager-2026/issues) or a pull request. Security problems:
-please [report them privately](https://github.com/JoaoGeraldes/password-manager-2026/security/advisories/new).
+[issue](https://github.com/JoaoGeraldes/password-manager-2026/issues) or a pull request.
