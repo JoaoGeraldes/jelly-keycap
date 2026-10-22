@@ -31,10 +31,12 @@
     "files": [
       "dist/**",
       "server/**",
-      "desktop/**"
+      "desktop/**",
+      "src/media/logo-symbol.png"
     ],
     "directories": {
       "output": "release"
-    }
+    },
+    "icon": "src/media/logo-symbol.png"
   }
 }

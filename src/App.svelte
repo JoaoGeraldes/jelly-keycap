@@ -1,6 +1,7 @@
 <!-- A slim bar with the display settings, then the lock screen or, once unlocked, the vault. -->
 <script>
   import DisplaySettings from './components/DisplaySettings.svelte';
+  import logo from './media/logo-symbol.svg';
   import LockScreen from './screens/LockScreen.svelte';
   import VaultScreen from './screens/VaultScreen.svelte';
   import { session } from './lib/vault.svelte.js';
@@ -8,6 +9,7 @@
 
 <div class="app">
   <header class="top-bar">
+    <img class="logo" src={logo} alt="Jellock" />
     <DisplaySettings />
   </header>
 
@@ -31,10 +33,15 @@
   .top-bar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between; /* the logo on the left, display settings on the right */
     height: 40px;
     padding: 0 8px;
     border-bottom: 1px solid var(--color-line);
     background: var(--color-sidebar);
+  }
+
+  .logo {
+    height: 22px;
+    padding-left: 4px;
   }
 </style>

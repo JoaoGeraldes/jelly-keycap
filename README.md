@@ -1,3 +1,5 @@
+<img src="src/media/logo-symbol.svg" alt="" width="72" />
+
 # Vault
 
 A minimal, self-hosted password manager. One Node process, one SQLite file, a Svelte UI, and
@@ -316,6 +318,7 @@ src/
   App.svelte            Top bar, then the lock screen or the vault screen
   app.css               Color tokens for both themes (light is Tailwind's slate, dark follows VS Code's Dark Modern), base elements, buttons
   fonts/                Atkinson Hyperlegible Mono, the app's font, chosen for readability (SIL Open Font License)
+  media/                The logo: SVG for the app and browser tab, PNG for the desktop app's icon
   lib/
     crypto.js           Argon2id, AES-GCM, base64, password generator
     api.js              One function per API route

@@ -63,7 +63,7 @@
 {/snippet}
 
 <form class="item-editor" onsubmit={save}>
-  <button type="button" class="button-quiet back" onclick={onClose}>{text.backToList}</button>
+  <button type="button" class="button-quiet back" onclick={onClose}><span aria-hidden="true">←</span> {text.backToList}</button>
 
   <div class="field">
     <label for="item-title">{text.nameLabel}</label>
@@ -185,10 +185,19 @@
     margin-left: auto;
   }
 
+  /* In the link color, with an arrow, so it reads as a way back and not as a heading. */
   .back {
     display: none;
+    gap: 0.4rem;
     justify-self: start;
     padding-left: 0;
+    color: var(--color-link);
+    font-weight: 600;
+  }
+
+  .back:hover {
+    color: var(--color-link);
+    text-decoration: underline;
   }
 
   @media (max-width: 760px) {

@@ -7,9 +7,11 @@
  */
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createVaultServer } from '../server/server.js';
 
 const UI_FOLDER = new URL('../dist/', import.meta.url);
+const ICON = new URL('../src/media/logo-symbol.png', import.meta.url); // the window's and taskbar's icon
 
 // A second copy would run a second server on the same file, so it focuses the first one instead.
 if (!app.requestSingleInstanceLock()) {
@@ -28,7 +30,7 @@ function openVault() {
 
   // Port 0: the system picks a free port, so the app never clashes with anything already running.
   server.listen(0, '127.0.0.1', () => {
-    const window = new BrowserWindow({ width: 1200, height: 800, autoHideMenuBar: true });
+    const window = new BrowserWindow({ width: 1200, height: 800, autoHideMenuBar: true, icon: fileURLToPath(ICON) });
 
     // Links, like a login's website, open in the normal browser, never inside the app.
     window.webContents.setWindowOpenHandler(({ url }) => {
