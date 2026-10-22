@@ -41,9 +41,10 @@
     <CapsLockWarning />
     {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
+    <!-- Cancel and Delete sit at opposite ends, so a slip lands on nothing or on the safe choice. -->
     <div class="actions">
-      <button class="delete" disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete'}</button>
-      <button type="button" class="button-quiet" onclick={() => dialog.close()}>Cancel</button>
+      <button type="button" class="button" onclick={() => dialog.close()}>Cancel</button>
+      <button class="delete" disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete vault'}</button>
     </div>
   </form>
 </dialog>
@@ -82,8 +83,15 @@
 
   .actions {
     display: flex;
-    gap: 0.5rem;
+    justify-content: space-between;
+    gap: 2rem;
     margin-top: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .actions button {
+    min-width: 6rem;
   }
 
   .delete {

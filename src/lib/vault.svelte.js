@@ -109,9 +109,13 @@ export async function createVault(name) {
   return id;
 }
 
-/** Deletes the vault and, on the server, every item in it. Asks for the master password first. */
+/**
+ * Deletes the vault and, on the server, every item in it. A vault with items asks for the
+ * master password first; an empty one has nothing to lose, so it goes right away.
+ */
 export async function deleteVault(vaultId, masterPassword) {
-  await deriveCheckedMasterKey(masterPassword); // throws if the password is wrong
+  const hasItems = session.items.some((item) => item.vaultId === vaultId);
+  if (hasItems) await deriveCheckedMasterKey(masterPassword); // throws if the password is wrong
   await api.deleteVault(vaultId);
   session.vaults = session.vaults.filter((vault) => vault.id !== vaultId);
   session.items = session.items.filter((item) => item.vaultId !== vaultId);

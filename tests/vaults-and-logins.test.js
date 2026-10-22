@@ -90,7 +90,7 @@ test('deleting a vault deletes its logins and leaves other vaults alone', async 
   assert.deepEqual(window.session.items.map((item) => item.title), ['GitHub']);
 });
 
-test('a vault is only deleted with the right master password', async () => {
+test('a vault with logins is only deleted with the right master password', async () => {
   const workId = await window.createVault('Work');
   await window.saveItem({ ...window.newItem(workId), title: 'AWS' });
 
@@ -99,6 +99,15 @@ test('a vault is only deleted with the right master password', async () => {
 
   assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal', 'Work']);
   assert.deepEqual(window.session.items.map((item) => item.title), ['AWS']);
+});
+
+test('an empty vault is deleted right away, without the master password', async () => {
+  const workId = await window.createVault('Work');
+
+  await window.deleteVault(workId);
+  await relock();
+
+  assert.deepEqual(window.session.vaults.map((vault) => vault.name), ['Personal']);
 });
 
 test('the backup is a complete SQLite copy with no readable secrets', async () => {

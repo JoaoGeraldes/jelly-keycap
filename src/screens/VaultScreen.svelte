@@ -8,7 +8,7 @@
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
-  import { createVault, lock, newItem, session } from "../lib/vault.svelte.js";
+  import { createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
@@ -71,6 +71,16 @@
     newVaultName = "";
     isNamingNewVault = false;
     if (name) selectVault(await createVault(name));
+  }
+
+  // Only a vault with logins in it needs the password dialog.
+  async function askToDeleteVault(vault) {
+    if (countItems(vault.id) > 0) {
+      vaultBeingDeleted = vault;
+      return;
+    }
+    await deleteVault(vault.id);
+    afterVaultDeleted();
   }
 
   function afterVaultDeleted() {
@@ -179,7 +189,7 @@
 
       <button
         class="button-quiet is-danger delete-vault"
-        onclick={() => (vaultBeingDeleted = selectedVault)}
+        onclick={() => askToDeleteVault(selectedVault)}
         >Delete this vault</button
       >
     {:else}
