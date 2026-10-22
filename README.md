@@ -7,6 +7,7 @@ The goal is the least code that is still correct: no backend dependencies, and o
 dependency in the browser (Argon2).
 
 - [Quick start](#quick-start)
+- [Desktop app](#desktop-app)
 - [How it works](#how-it-works)
 - [Encryption](#encryption)
 - [Database](#database)
@@ -36,6 +37,25 @@ npm start          # serves the UI and the API on http://127.0.0.1:3000
 
 The first visit asks you to create a master password. Your vault is the file `vault.sqlite`
 in the folder you started from.
+
+## Desktop app
+
+For everyday use there is nothing to set up: install Vault and open it like any other app. It
+opens in its own window and runs everything it needs by itself, with no server to start and no
+browser to open. Your vault is kept in the app's own folder (on Windows,
+`%APPDATA%\Vault\vault.sqlite`), and **View database** shows the exact path.
+
+For developers, the desktop app is a thin shell around the same code. All of it is in
+[`desktop/main.js`](desktop/main.js): it starts `server/server.js` on a free port that only this
+computer can reach, and opens a window on it. Nothing else in the project knows about Electron.
+
+```sh
+npm run desktop    # builds the UI and opens the desktop app
+npm run package    # builds an installer for this system into release/
+```
+
+The installer isn't code-signed, so on first launch Windows shows "Windows protected your PC"
+(choose **More info → Run anyway**), and macOS asks you to right-click the app and choose **Open**.
 
 ## How it works
 
@@ -254,6 +274,8 @@ session, like a browser tab, so tests can check what happens with two windows op
 ## Project layout
 
 ```
+desktop/
+  main.js               The desktop app (Electron): starts the server and opens it in a window
 server/
   schema.sql            Database tables, with comments
   api.js                Every API route, plus the SQLite connection
