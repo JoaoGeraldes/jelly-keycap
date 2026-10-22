@@ -85,7 +85,7 @@
   class:is-showing-wide-panel={isWidePanelOpen}
 >
   <nav class="vaults" aria-label="Vaults">
-    <p class="app-name">Vault</p>
+    <p class="vaults-heading">Vaults</p>
 
     {#each session.vaults as vault (vault.id)}
       <button
@@ -98,23 +98,28 @@
       </button>
     {/each}
 
-    {#if isNamingNewVault}
-      <form onsubmit={addVault}>
-        <!-- svelte-ignore a11y_autofocus -->
-        <input
-          bind:value={newVaultName}
-          placeholder="Name, like Work"
-          aria-label="New vault name"
-          onblur={addVault}
-          autofocus
-        />
-      </form>
-    {:else}
-      <button
-        class="button-quiet new-vault"
-        onclick={() => (isNamingNewVault = true)}>New vault</button
-      >
-    {/if}
+    <!-- Set apart from the list, so it reads as an action and not as one more vault. -->
+    <div class="new-vault-area">
+      {#if isNamingNewVault}
+        <form onsubmit={addVault}>
+          <!-- svelte-ignore a11y_autofocus -->
+          <input
+            bind:value={newVaultName}
+            placeholder="Name the new vault"
+            aria-label="New vault name"
+            onblur={addVault}
+            autofocus
+          />
+        </form>
+      {:else}
+        <button
+          class="button-quiet new-vault"
+          onclick={() => (isNamingNewVault = true)}
+        >
+          <span aria-hidden="true">+</span> New vault
+        </button>
+      {/if}
+    </div>
 
     <div class="vaults-footer">
       <button class="button-quiet" onclick={() => showPanel("how-it-works")}
@@ -259,7 +264,7 @@
     text-align: center;
   }
 
-  .app-name {
+  .vaults-heading {
     margin: 0 0.6rem 1rem;
     color: var(--color-accent);
     font-weight: 700;
@@ -301,9 +306,33 @@
     font-size: 0.85rem;
   }
 
-  .new-vault,
   .delete-vault {
     justify-content: flex-start;
+  }
+
+  .new-vault-area {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .new-vault-area input {
+    width: 100%;
+  }
+
+  /* A dashed outline in the link color: the usual sign for "add one more", unlike the plain vault rows. */
+  .new-vault {
+    gap: 0.4rem;
+    width: 100%;
+    justify-content: flex-start;
+    border: 1px dashed var(--color-control-border);
+    color: var(--color-link);
+    font-weight: 600;
+  }
+
+  .new-vault:hover {
+    border-color: var(--color-link);
+    color: var(--color-link);
   }
 
   .vaults-footer {
@@ -387,11 +416,18 @@
       border-bottom: 1px solid var(--color-line);
     }
 
-    .vault-button {
+    .vault-button,
+    .new-vault {
       width: auto;
     }
 
-    .app-name {
+    .new-vault-area {
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+
+    .vaults-heading {
       margin: 0 0.6rem 0 0;
     }
 
