@@ -55,7 +55,7 @@
   <section class="card intro">
     <img class="logo" src={logo} alt="" />
     <div class="card-heading">
-      <h2>Jellock</h2>
+      <h2>Jelly Keycap</h2>
       <p class="motto">{text.motto}</p>
       <p>{@render linked(text.description)}</p>
     </div>
@@ -67,7 +67,12 @@
       <p>{@render linked(text.madeBy)}</p>
       <p>{@render linked(text.builtWithAi)}</p>
     </div>
-    <a class="button source" href={REPOSITORY} target="_blank" rel="noopener noreferrer">{text.viewSource}</a>
+    <a
+      class="button source"
+      href={REPOSITORY}
+      target="_blank"
+      rel="noopener noreferrer">{text.viewSource}</a
+    >
   </section>
 
   <section class="card">

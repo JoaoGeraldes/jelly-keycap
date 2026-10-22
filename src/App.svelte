@@ -1,15 +1,15 @@
 <!-- A slim bar with the display settings, then the lock screen or, once unlocked, the vault. -->
 <script>
-  import DisplaySettings from './components/DisplaySettings.svelte';
-  import logo from './media/logo-symbol.svg';
-  import LockScreen from './screens/LockScreen.svelte';
-  import VaultScreen from './screens/VaultScreen.svelte';
-  import { session } from './lib/vault.svelte.js';
+  import DisplaySettings from "./components/DisplaySettings.svelte";
+  import logo from "./media/logo-symbol.svg";
+  import LockScreen from "./screens/LockScreen.svelte";
+  import VaultScreen from "./screens/VaultScreen.svelte";
+  import { session } from "./lib/vault.svelte.js";
 </script>
 
 <div class="app">
   <header class="top-bar">
-    <img class="logo" src={logo} alt="Jellock" />
+    <img class="logo" src={logo} alt="Jelly Keycap" />
     <DisplaySettings />
   </header>
 

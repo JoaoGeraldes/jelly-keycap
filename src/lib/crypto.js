@@ -8,6 +8,7 @@
  *    decrypting to garbage.
  *
  * Encrypted values travel and are stored as one base64 string: nonce (12 bytes) + ciphertext.
+ * Also here: base64 helpers and the strong password generator used by the entry editor.
  */
 import { argon2id } from 'hash-wasm';
 

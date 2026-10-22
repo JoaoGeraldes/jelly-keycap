@@ -306,50 +306,37 @@ session, like a browser tab, so tests can check what happens with two windows op
 
 ## Project layout
 
+Every file starts with a comment saying what it does and why, so this is a map of the folders.
+Open a file for its details.
+
 ```
-desktop/
-  main.js               The desktop app (Electron): starts the server and opens it in a window
-server/
-  schema.sql            Database tables, with comments
-  api.js                Every API route, plus the SQLite connection
-  server.js             Production server: UI files, security headers, API
-  start.js              Reads the settings and starts server.js (`npm start`)
-src/
-  main.js               Mounts the app
-  App.svelte            Top bar, then the lock screen or the vault screen
-  app.css               Color tokens for both themes (light is Tailwind's slate, dark follows VS Code's Dark Modern), base elements, buttons
-  fonts/                Atkinson Hyperlegible Mono, the app's font, chosen for readability (SIL Open Font License)
-  media/                The logo: SVG for the app and browser tab; PNG and .ico (with a hand-made 16px) for the desktop app
-  lib/
-    crypto.js           Argon2id, AES-GCM, base64, password generator
-    api.js              One function per API route
-    vault.svelte.js     Session state; encryption on the way out, decryption on the way in
-    display-settings.js Text size and theme: load, apply, remember
-    i18n.svelte.js      Translations: the chosen language, and textFor(component)
-    format.js           How stored values are shown: local dates and times, file sizes
-    caps-lock.svelte.js Whether Caps Lock is on, for the warning under password fields
-    how-it-works.js     Shape of the "How it works" diagrams: nodes, positions, arrows, doc links
-  screens/
-    LockScreen.svelte   Create or enter the master password
-    VaultScreen.svelte  Vaults, list of logins, and the selected login
-  components/
-    ItemEditor.svelte   View and edit one login
-    Settings.svelte              Settings: the master password and language cards
-    About.svelte                 About: the motto, who made it, the source code and how to contribute
-    ChangeMasterPassword.svelte  The "Master password" card in Settings
-    DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
-    CapsLockWarning.svelte       "Caps Lock is on" under every master password field
-    JellyKeycap.svelte           The lock screen's jelly keycap: squashed by each keystroke (flatter when typing fast), can be thrown
-    DeleteVaultDialog.svelte     Asks for the master password before deleting a vault with logins in it
-    DatabaseViewer.svelte        Where the file is, and a read-only view of every table, page by page
-    RestoreBackup.svelte         Restore a backup (current vault saved first)
-    HowItWorks.svelte            Draggable diagram of the encryption
-    UndoStack.svelte             "Deleted · Undo" notes in the corner while a deleted entry can still come back
-  i18n/
-    en/, pt/            One text file per component, per language (see Translations)
-tests/                  See Tests above
-vite.config.js          Svelte build, and the API mounted inside the dev server
+desktop/          The desktop app. One file that wraps the server and the UI in an Electron
+                  window; the only place that knows about Electron.
+server/           The backend: a thin Node server that stores and returns encrypted text.
+                  schema.sql (the tables), api.js (every route), server.js (UI files and
+                  security headers), start.js (reads settings for `npm start`).
+src/              The browser app. main.js mounts App.svelte; app.css holds the colour tokens
+                  for both themes, base elements and buttons.
+  lib/            Logic with no markup: the session and its encryption (vault.svelte.js),
+                  cryptography, talking to the server, translations, display settings and
+                  small helpers. Components call these; they never touch keys or HTTP.
+  screens/        The two full screens: locked (LockScreen) and unlocked (VaultScreen).
+  components/     Everything else on screen: the entry editor, panels (Settings, About,
+                  database, How it works), dialogs and small widgets. One component per file.
+  i18n/           Words. One folder per language (en/, pt/), one file per component with the
+                  same name as the component. See Translations.
+  fonts/          Atkinson Hyperlegible Mono, the app's font, kept here so nothing loads from
+                  the internet (SIL Open Font License).
+  media/          The logo: SVG for the app and browser tab, PNG and .ico for the desktop app.
+                  The .ico holds a hand-made 16px version; rebuild it if that file changes.
+tests/            One test file per area (see Tests); shared helpers in tests/support/.
+design/           Source files for the artwork, like the logo. Not used by the app.
+index.html        The page the app is mounted into.
+vite.config.js    The Svelte build, and the API mounted inside the dev server.
 ```
+
+Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop
+installers, from `npm run package`) and `node_modules/`.
 
 ## Not built yet
 

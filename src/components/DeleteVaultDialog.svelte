@@ -1,5 +1,6 @@
 <!--
-  Asks for the master password before deleting a vault and all of its logins.
+  Asks for the master password before deleting a vault and all of its logins. Only shown for a
+  vault with logins in it: an empty one is deleted straight away (see VaultScreen.svelte).
   Uses the browser's own <dialog>, which handles the backdrop, focus and the Escape key.
 -->
 <script>

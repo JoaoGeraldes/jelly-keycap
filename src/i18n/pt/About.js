@@ -17,7 +17,7 @@ export default {
   viewSource: "Ver o código no GitHub",
   openSourceTitle: "Livre e de código aberto",
   openSource:
-    "O Jellock é distribuído sob a [Licença MIT](license): use-o, estude-o, altere-o e partilhe-o. Não confie, verifique: [cada linha](repository) que toca nos seus segredos está lá para ler.",
+    "O Jelly Keycap é distribuído sob a [Licença MIT](license): use-o, estude-o, altere-o e partilhe-o. Não confie, verifique: [cada linha](repository) que toca nos seus segredos está lá para ler.",
   contribute:
     "Contribuições são bem-vindas, grandes ou pequenas: [abra um issue](issues) ou [envie um pull request](pulls). Gralhas também contam.",
   underTheHoodTitle: "Por dentro",
