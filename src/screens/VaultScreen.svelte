@@ -21,6 +21,7 @@
   let isNamingNewVault = $state(false);
   let vaultBeingDeleted = $state(null); // kept here, so the dialog still has it once it leaves the list
   let newVaultName = $state("");
+  let isMenuOpen = $state(false); // phones only; on wider screens the menu is always shown
 
   const isWidePanelOpen = $derived(
     openPanel === "database" || openPanel === "how-it-works",
@@ -51,7 +52,9 @@
     return session.items.filter((item) => item.vaultId === vaultId).length;
   }
 
+  // Picking anything in the menu folds it away again on phones.
   function selectVault(vaultId) {
+    isMenuOpen = false;
     selectedVaultId = vaultId;
     showItem(null);
     searchText = "";
@@ -64,6 +67,7 @@
   }
 
   function showPanel(name) {
+    isMenuOpen = false;
     selectedItem = null;
     openPanel = name;
   }
@@ -99,53 +103,65 @@
   class:is-showing-wide-panel={isWidePanelOpen}
 >
   <nav class="vaults" aria-label={text.vaults}>
-    <p class="vaults-heading">{text.vaults}</p>
+    <!-- Phones only: the menu starts folded away, so the list of logins gets the screen. -->
+    <button
+      class="button menu-toggle"
+      aria-expanded={isMenuOpen}
+      aria-controls="vault-menu"
+      onclick={() => (isMenuOpen = !isMenuOpen)}
+    >
+      {isMenuOpen ? text.closeMenu : text.menu}
+    </button>
 
-    {#each session.vaults as vault (vault.id)}
-      <button
-        class="vault-button"
-        class:is-selected={vault.id === selectedVaultId}
-        onclick={() => selectVault(vault.id)}
-      >
-        <span>{vault.name}</span>
-        <span class="count">{countItems(vault.id)}</span>
-      </button>
-    {/each}
+    <div id="vault-menu" class="menu" class:is-open={isMenuOpen}>
+      <p class="vaults-heading">{text.vaults}</p>
 
-    <!-- Set apart from the list, so it reads as an action and not as one more vault. -->
-    <div class="new-vault-area">
-      {#if isNamingNewVault}
-        <form onsubmit={addVault}>
-          <!-- svelte-ignore a11y_autofocus -->
-          <input
-            bind:value={newVaultName}
-            placeholder={text.newVaultPlaceholder}
-            aria-label={text.newVaultName}
-            onblur={addVault}
-            autofocus
-          />
-        </form>
-      {:else}
+      {#each session.vaults as vault (vault.id)}
         <button
-          class="button-quiet new-vault"
-          onclick={() => (isNamingNewVault = true)}
+          class="vault-button"
+          class:is-selected={vault.id === selectedVaultId}
+          onclick={() => selectVault(vault.id)}
         >
-          <span aria-hidden="true">+</span> {text.newVault}
+          <span>{vault.name}</span>
+          <span class="count">{countItems(vault.id)}</span>
         </button>
-      {/if}
-    </div>
+      {/each}
 
-    <div class="vaults-footer">
-      <button class="button-quiet" onclick={() => showPanel("how-it-works")}
-        >{text.howItWorks}</button
-      >
-      <button class="button-quiet" onclick={() => showPanel("database")}
-        >{text.viewDatabase}</button
-      >
-      <button class="button-quiet" onclick={() => showPanel("settings")}
-        >{text.settings}</button
-      >
-      <button class="button-quiet" onclick={() => lock()}>{text.lock}</button>
+      <!-- Set apart from the list, so it reads as an action and not as one more vault. -->
+      <div class="new-vault-area">
+        {#if isNamingNewVault}
+          <form onsubmit={addVault}>
+            <!-- svelte-ignore a11y_autofocus -->
+            <input
+              bind:value={newVaultName}
+              placeholder={text.newVaultPlaceholder}
+              aria-label={text.newVaultName}
+              onblur={addVault}
+              autofocus
+            />
+          </form>
+        {:else}
+          <button
+            class="button-quiet new-vault"
+            onclick={() => (isNamingNewVault = true)}
+          >
+            <span aria-hidden="true">+</span> {text.newVault}
+          </button>
+        {/if}
+      </div>
+
+      <div class="vaults-footer">
+        <button class="button-quiet" onclick={() => showPanel("how-it-works")}
+          >{text.howItWorks}</button
+        >
+        <button class="button-quiet" onclick={() => showPanel("database")}
+          >{text.viewDatabase}</button
+        >
+        <button class="button-quiet" onclick={() => showPanel("settings")}
+          >{text.settings}</button
+        >
+        <button class="button-quiet" onclick={() => lock()}>{text.lock}</button>
+      </div>
     </div>
   </nav>
 
@@ -257,6 +273,16 @@
 
   .vaults {
     background: var(--color-sidebar);
+  }
+
+  /* On wide screens the menu's contents are laid out as if the wrapper weren't there. */
+  .menu {
+    display: contents;
+  }
+
+  .menu-toggle {
+    display: none;
+    align-self: flex-start;
   }
 
   .items {
@@ -450,6 +476,8 @@
   }
 
   /* Phones: vaults become a strip on top; picking a login shows only that login. */
+  /* Phones: one column. The menu button sits top left, always in reach; the menu opens below it
+     as the same list as the sidebar. Picking a login or panel shows only that. */
   @media (max-width: 760px) {
     .vault-screen {
       grid-template-columns: 1fr;
@@ -457,31 +485,28 @@
     }
 
     .vaults {
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
+      padding: 0.5rem 0.75rem;
       border-right: 0;
       border-bottom: 1px solid var(--color-line);
     }
 
-    .vault-button,
-    .new-vault {
-      width: auto;
+    .menu-toggle {
+      display: inline-flex;
     }
 
-    .new-vault-area {
-      margin: 0;
-      padding: 0;
-      border: 0;
+    .menu {
+      display: none;
     }
 
-    .vaults-heading {
-      margin: 0 0.6rem 0 0;
+    .menu.is-open {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-top: 0.75rem;
     }
 
     .vaults-footer {
-      flex-direction: row;
-      margin: 0 0 0 auto;
+      margin-top: 0.75rem;
     }
 
     .items {
@@ -492,14 +517,12 @@
       display: none;
     }
 
-    .is-showing-detail .vaults,
     .is-showing-detail .items {
       display: none;
     }
 
     .is-showing-detail .detail {
       display: block;
-      grid-row: 1 / -1;
     }
   }
 </style>

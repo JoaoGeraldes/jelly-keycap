@@ -1,5 +1,7 @@
 // Textos de src/screens/VaultScreen.svelte.
 export default {
+  menu: 'Menu',
+  closeMenu: 'Fechar menu',
   vaults: 'Cofres',
   newVaultPlaceholder: 'Dê um nome ao novo cofre',
   newVaultName: 'Nome do novo cofre',

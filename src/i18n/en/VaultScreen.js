@@ -1,5 +1,7 @@
 // Texts of src/screens/VaultScreen.svelte.
 export default {
+  menu: 'Menu',
+  closeMenu: 'Close menu',
   vaults: 'Vaults',
   newVaultPlaceholder: 'Name the new vault',
   newVaultName: 'New vault name',
