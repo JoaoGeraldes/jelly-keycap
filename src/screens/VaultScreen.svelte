@@ -147,19 +147,22 @@
 
   <section class="items" aria-label="Logins">
     {#if selectedVault}
-      <header>
-        <h1>{selectedVault.name}</h1>
-        <button
-          class="button-primary"
-          onclick={() => showItem(newItem(selectedVaultId))}>New entry</button
-        >
-      </header>
-      <input
-        type="search"
-        bind:value={searchText}
-        placeholder="Search {selectedVault.name}"
-        aria-label="Search logins"
-      />
+      <!-- Stays at the top while the list scrolls, so adding and searching are always in reach. -->
+      <div class="items-top">
+        <header>
+          <h1>{selectedVault.name}</h1>
+          <button
+            class="button-primary"
+            onclick={() => showItem(newItem(selectedVaultId))}>New entry</button
+          >
+        </header>
+        <input
+          type="search"
+          bind:value={searchText}
+          placeholder="Search {selectedVault.name}"
+          aria-label="Search logins"
+        />
+      </div>
 
       <ul>
         {#each visibleItems as item (item.id)}
@@ -252,7 +255,18 @@
 
   .items {
     gap: 0.75rem;
+    padding-top: 0; /* moved onto .items-top, so rows scroll away under it with no gap above */
     background: var(--color-surface);
+  }
+
+  .items-top {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: grid;
+    gap: 0.75rem;
+    padding: 1.25rem 0 0.5rem;
+    background: var(--color-surface); /* hides the rows scrolling underneath */
   }
 
   /* The database table and the diagram need the room more than the list of logins does. */
@@ -390,6 +404,10 @@
 
   li.empty {
     padding: 1rem 0.6rem;
+  }
+
+  .items > .empty {
+    padding-top: 1.25rem; /* the column has no top padding of its own (see .items) */
   }
 
   .initial {
