@@ -3,17 +3,17 @@
   login being viewed or edited. On a phone it shows one column at a time.
 -->
 <script>
-  import ChangeMasterPassword from "../components/ChangeMasterPassword.svelte";
   import DatabaseViewer from "../components/DatabaseViewer.svelte";
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
+  import Settings from "../components/Settings.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
   import UndoStack from "../components/UndoStack.svelte";
   import { cloneItem, createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
-  let openPanel = $state(null); // 'change-password', 'database', 'how-it-works', or null to show the selected item
+  let openPanel = $state(null); // 'settings', 'database', 'how-it-works', or null to show the selected item
   let searchText = $state("");
   let isNamingNewVault = $state(false);
   let vaultBeingDeleted = $state(null); // kept here, so the dialog still has it once it leaves the list
@@ -139,8 +139,8 @@
       <button class="button-quiet" onclick={() => showPanel("database")}
         >View database</button
       >
-      <button class="button-quiet" onclick={() => showPanel("change-password")}
-        >Change master password</button
+      <button class="button-quiet" onclick={() => showPanel("settings")}
+        >Settings</button
       >
       <button class="button-quiet" onclick={() => lock()}>Lock</button>
     </div>
@@ -202,8 +202,8 @@
   </section>
 
   <section class="detail" aria-label="Login details">
-    {#if openPanel === "change-password"}
-      <ChangeMasterPassword onClose={() => showItem(null)} />
+    {#if openPanel === "settings"}
+      <Settings onClose={() => showItem(null)} />
     {:else if openPanel === "database"}
       <DatabaseViewer onClose={() => showItem(null)} />
     {:else if openPanel === "how-it-works"}

@@ -66,21 +66,25 @@
     width: min(20rem, 100vw - 2rem);
   }
 
+  /* The page's own colors swapped (dark note on the light theme, light note on the dark one),
+     like a phone's "Undo" bar, so it stands out from whatever it covers. */
   .undo-note,
   .undo-all {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.4rem 0.4rem 0.4rem 0.8rem;
+    border: 1px solid color-mix(in srgb, var(--color-background) 20%, transparent);
+    border-left: 3px solid var(--color-accent);
+    border-radius: var(--radius);
+    background: var(--color-ink);
+    color: var(--color-background);
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
   }
 
   .undo-note {
     position: relative;
     overflow: hidden;
-    padding: 0.4rem 0.4rem 0.4rem 0.8rem;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius);
-    background: var(--color-surface);
-    box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
   }
 
   .name {
@@ -90,16 +94,23 @@
     white-space: nowrap;
   }
 
+  /* Filled accent buttons, so Undo is the obvious thing to press. */
   .undo-note button,
   .undo-all button {
-    color: var(--color-link);
+    padding: 0.3rem 0.7rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
     font-weight: 600;
+  }
+
+  .undo-note button:hover,
+  .undo-all button:hover {
+    background: color-mix(in srgb, var(--color-accent) 85%, black);
+    color: var(--color-on-accent);
   }
 
   .undo-all {
     justify-content: space-between;
-    padding-left: 0.8rem;
-    color: var(--color-ink-muted);
     font-size: 0.85rem;
   }
 
@@ -109,8 +120,9 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    height: 2px;
-    background: var(--color-accent);
+    height: 3px;
+    background: var(--color-background);
+    opacity: 0.6;
     transform-origin: left;
     animation: run-out linear forwards;
   }

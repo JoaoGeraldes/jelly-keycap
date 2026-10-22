@@ -1,9 +1,7 @@
-<!-- Form to replace the master password. Shown in the detail column of the vault screen. -->
+<!-- The "Master password" card in Settings: replaces the master password. -->
 <script>
   import { MINIMUM_MASTER_PASSWORD_LENGTH, changeMasterPassword } from '../lib/vault.svelte.js';
   import CapsLockWarning from './CapsLockWarning.svelte';
-
-  let { onClose } = $props();
 
   let currentPassword = $state('');
   let newPassword = $state('');
@@ -30,52 +28,47 @@
   }
 </script>
 
-{#if isChanged}
-  <div class="change-master-password">
-    <h1>Master password changed</h1>
-    <p>Use the new one next time you unlock. Backups made before today still open with the old one.</p>
-    <button class="button" onclick={onClose}>Done</button>
+<section class="card">
+  <div class="card-heading">
+    <h2>Master password</h2>
+    <p>The one password that unlocks all your vaults. Changing it keeps everything inside as it is.</p>
   </div>
-{:else}
-  <form class="change-master-password" onsubmit={submit}>
-    <h1>Change master password</h1>
 
-    <label for="current-password">Current master password</label>
-    <input id="current-password" type="password" bind:value={currentPassword} autocomplete="current-password" required />
+  {#if isChanged}
+    <p class="notice" role="status">
+      Master password changed. Use the new one next time you unlock. Backups made before today still open with the old one.
+    </p>
+  {:else}
+    <form onsubmit={submit}>
+      <label for="current-password">Current master password</label>
+      <input id="current-password" type="password" bind:value={currentPassword} autocomplete="current-password" required />
 
-    <label for="new-password">New master password</label>
-    <input
-      id="new-password"
-      type="password"
-      bind:value={newPassword}
-      minlength={MINIMUM_MASTER_PASSWORD_LENGTH}
-      autocomplete="new-password"
-      required
-    />
+      <label for="new-password">New master password</label>
+      <input
+        id="new-password"
+        type="password"
+        bind:value={newPassword}
+        minlength={MINIMUM_MASTER_PASSWORD_LENGTH}
+        autocomplete="new-password"
+        required
+      />
 
-    <label for="new-password-again">Type the new one again</label>
-    <input id="new-password-again" type="password" bind:value={newPasswordAgain} autocomplete="new-password" required />
+      <label for="new-password-again">Type the new one again</label>
+      <input id="new-password-again" type="password" bind:value={newPasswordAgain} autocomplete="new-password" required />
 
-    <CapsLockWarning />
-    {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
+      <CapsLockWarning />
+      {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
-    <div class="actions">
       <button class="button-primary" disabled={isWorking}>{isWorking ? 'Changing…' : 'Change master password'}</button>
-      <button type="button" class="button-quiet" onclick={onClose}>Cancel</button>
-    </div>
-  </form>
-{/if}
+    </form>
+  {/if}
+</section>
 
 <style>
-  .change-master-password {
+  form {
     display: grid;
     gap: 0.6rem;
     max-width: 24rem;
-  }
-
-  h1 {
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
   }
 
   label {
@@ -85,17 +78,12 @@
     font-weight: 600;
   }
 
-  p {
-    color: var(--color-ink-muted);
+  .notice {
+    max-width: 40rem;
   }
 
-  .button {
+  .button-primary {
     justify-self: start;
-  }
-
-  .actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.8rem;
+    margin-top: 0.4rem;
   }
 </style>

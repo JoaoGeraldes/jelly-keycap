@@ -302,7 +302,8 @@ src/
     VaultScreen.svelte  Vaults, list of logins, and the selected login
   components/
     ItemEditor.svelte   View and edit one login
-    ChangeMasterPassword.svelte  Form to change the master password
+    Settings.svelte              Settings: the master password card, and a placeholder for the language
+    ChangeMasterPassword.svelte  The "Master password" card in Settings
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
     DeleteVaultDialog.svelte     Asks for the master password before deleting a vault with logins in it
