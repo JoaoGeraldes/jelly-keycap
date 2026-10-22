@@ -6,9 +6,12 @@
 <script>
   import { BACKUP_URL, api } from "../lib/api.js";
   import { formatCell, formatSize, isTimestampColumn } from "../lib/format.js";
+  import { language, textFor } from "../lib/i18n.svelte.js";
   import RestoreBackup from "./RestoreBackup.svelte";
 
   let { onClose } = $props();
+
+  const text = textFor("DatabaseViewer");
 
   let tables = $state([]);
   let tableName = $state(null);
@@ -30,40 +33,29 @@
 
 <div class="database-viewer">
   <header>
-    <h1>My Database</h1>
-    <button class="button-quiet" onclick={onClose}>Close</button>
+    <h1>{text.title}</h1>
+    <button class="button-quiet" onclick={onClose}>{text.close}</button>
   </header>
 
   {#if databaseFile}
     <section class="card">
       <div class="card-heading">
-        <h2>Where your vault is stored</h2>
-        <p>
-          Your whole vault is this one file ({formatSize(
-            databaseFile.sizeBytes,
-          )}).
-        </p>
+        <h2>{text.whereTitle}</h2>
+        <p>{text.whereExplanation(formatSize(databaseFile.sizeBytes))}</p>
       </div>
       <code class="path">{databaseFile.path}</code>
-      <p class="explanation">
-        Download a backup to keep a copy somewhere safe, like a USB stick or a
-        cloud folder. It stays encrypted, and copying the file while the app is
-        closed works too.
-      </p>
-      <a class="button download" href={BACKUP_URL} download>Download backup</a>
+      <p class="explanation">{text.backupExplanation}</p>
+      <a class="button download" href={BACKUP_URL} download>{text.downloadBackup}</a>
     </section>
   {/if}
 
   <section class="card">
     <div class="card-heading">
-      <h2>What’s inside</h2>
-      <p>
-        Exactly what is stored in that file. Anything secret is encrypted. Dates
-        are shown in your local time; point at one to see the stored value.
-      </p>
+      <h2>{text.insideTitle}</h2>
+      <p>{text.insideExplanation}</p>
     </div>
 
-    <nav aria-label="Tables">
+    <nav aria-label={text.tables}>
       {#each tables as table (table.name)}
         <button
           class="button"
@@ -90,17 +82,17 @@
                   <td
                     class:is-timestamp={isTimestampColumn(column)}
                     title={isTimestampColumn(column)
-                      ? `Stored as ${row[column]}`
+                      ? text.storedAs(row[column])
                       : undefined}
                   >
-                    {formatCell(column, row[column])}
+                    {formatCell(column, row[column], { locale: language.code })}
                   </td>
                 {/each}
               </tr>
             {:else}
               <tr
                 ><td class="empty" colspan={page.columns.length}
-                  >This table is empty.</td
+                  >{text.emptyTable}</td
                 ></tr
               >
             {/each}
@@ -112,18 +104,15 @@
         <button
           class="button"
           disabled={page.page <= 1}
-          onclick={() => showPage(tableName, page.page - 1)}>Previous</button
+          onclick={() => showPage(tableName, page.page - 1)}>{text.previous}</button
         >
-        <span
-          >Page {page.page} of {page.pageCount}, {page.rowCount}
-          {page.rowCount === 1 ? "row" : "rows"}</span
-        >
+        <span>{text.pageOf(page.page, page.pageCount, page.rowCount)}</span>
         <button
           class="button"
           disabled={page.page >= page.pageCount}
           onclick={() => showPage(tableName, page.page + 1)}
         >
-          Next
+          {text.next}
         </button>
       </footer>
     {/if}

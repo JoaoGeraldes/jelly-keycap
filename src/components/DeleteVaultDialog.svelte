@@ -3,10 +3,13 @@
   Uses the browser's own <dialog>, which handles the backdrop, focus and the Escape key.
 -->
 <script>
+  import { textFor } from '../lib/i18n.svelte.js';
   import { deleteVault } from '../lib/vault.svelte.js';
   import CapsLockWarning from './CapsLockWarning.svelte';
 
   let { vault, loginCount, onDeleted, onCancel } = $props();
+
+  const text = textFor('DeleteVaultDialog');
 
   let dialog;
   let password = $state('');
@@ -31,10 +34,10 @@
 
 <dialog bind:this={dialog} onclose={onCancel}>
   <form onsubmit={submit}>
-    <h1>Delete “{vault.name}”?</h1>
-    <p>This deletes the vault and its {loginCount} login{loginCount === 1 ? '' : 's'}. It can’t be undone.</p>
+    <h1>{text.title(vault.name)}</h1>
+    <p>{text.explanation(loginCount)}</p>
 
-    <label for="delete-vault-password">Master password</label>
+    <label for="delete-vault-password">{text.masterPasswordLabel}</label>
     <!-- svelte-ignore a11y_autofocus -->
     <input id="delete-vault-password" type="password" bind:value={password} autocomplete="current-password" required autofocus />
 
@@ -43,8 +46,8 @@
 
     <!-- Cancel and Delete sit at opposite ends, so a slip lands on nothing or on the safe choice. -->
     <div class="actions">
-      <button type="button" class="button" onclick={() => dialog.close()}>Cancel</button>
-      <button class="delete" disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete vault'}</button>
+      <button type="button" class="button" onclick={() => dialog.close()}>{text.cancel}</button>
+      <button class="delete" disabled={isDeleting}>{isDeleting ? text.deleting : text.deleteVault}</button>
     </div>
   </form>
 </dialog>

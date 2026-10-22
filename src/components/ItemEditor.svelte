@@ -4,9 +4,12 @@
 -->
 <script>
   import { generatePassword } from '../lib/crypto.js';
+  import { textFor } from '../lib/i18n.svelte.js';
   import { deleteItem, saveItem } from '../lib/vault.svelte.js';
 
   let { item, isNew, onSaved, onClose } = $props();
+
+  const text = textFor('ItemEditor');
 
   // A copy on purpose: edits stay in the draft until Save. A different item remounts this component.
   // svelte-ignore state_referenced_locally
@@ -25,7 +28,7 @@
     try {
       onSaved(await saveItem(draft));
     } catch (error) {
-      errorMessage = `Not saved: ${error.message}`;
+      errorMessage = text.notSaved(error.message);
     }
   }
 
@@ -55,22 +58,22 @@
 
 {#snippet copyButton(field)}
   <button type="button" class="button" onclick={() => copy(field)} disabled={!draft[field]}>
-    {copiedField === field ? 'Copied' : 'Copy'}
+    {copiedField === field ? text.copied : text.copy}
   </button>
 {/snippet}
 
 <form class="item-editor" onsubmit={save}>
-  <button type="button" class="button-quiet back" onclick={onClose}>Back to list</button>
+  <button type="button" class="button-quiet back" onclick={onClose}>{text.backToList}</button>
 
   <div class="field">
-    <label for="item-title">Name: what this is for, so you can find it later (like GitHub, Home Wi‑Fi or Bank PIN)</label>
+    <label for="item-title">{text.nameLabel}</label>
     <!-- A new entry starts with its name, so typing can start right away. Focused directly because
          Svelte's autofocus is skipped when something else (here, the New entry button) has focus. -->
     <input id="item-title" class="title-input" bind:value={draft.title} {@attach (input) => isNew && input.focus()} required />
   </div>
 
   <div class="field">
-    <label for="item-username">Username or email</label>
+    <label for="item-username">{text.usernameLabel}</label>
     <div class="field-row">
       <input id="item-username" bind:value={draft.username} autocomplete="off" spellcheck="false" />
       {@render copyButton('username')}
@@ -78,7 +81,7 @@
   </div>
 
   <div class="field">
-    <label for="item-password">Password</label>
+    <label for="item-password">{text.passwordLabel}</label>
     <div class="field-row">
       <input
         id="item-password"
@@ -89,25 +92,25 @@
         spellcheck="false"
       />
       <button type="button" class="button" onclick={() => (isPasswordVisible = !isPasswordVisible)}>
-        {isPasswordVisible ? 'Hide' : 'Show'}
+        {isPasswordVisible ? text.hide : text.show}
       </button>
       {@render copyButton('password')}
     </div>
-    <button type="button" class="button-quiet generate" onclick={useGeneratedPassword}>Generate a strong password</button>
+    <button type="button" class="button-quiet generate" onclick={useGeneratedPassword}>{text.generatePassword}</button>
   </div>
 
   <div class="field">
-    <label for="item-url">Website</label>
+    <label for="item-url">{text.websiteLabel}</label>
     <div class="field-row">
       <input id="item-url" bind:value={draft.url} inputmode="url" autocomplete="off" spellcheck="false" placeholder="github.com" />
       {#if draft.url}
-        <a class="button" href={websiteLink} target="_blank" rel="noopener noreferrer">Open</a>
+        <a class="button" href={websiteLink} target="_blank" rel="noopener noreferrer">{text.open}</a>
       {/if}
     </div>
   </div>
 
   <div class="field">
-    <label for="item-notes">Notes</label>
+    <label for="item-notes">{text.notesLabel}</label>
     <textarea id="item-notes" bind:value={draft.notes} rows="4"></textarea>
   </div>
 
@@ -116,13 +119,13 @@
   <!-- Save and Cancel sit together; Delete is set apart at the far end, so it is never hit by mistake. -->
   <div class="actions">
     <button class="button-primary" disabled={!isNew && !hasUnsavedChanges}>
-      {isNew || hasUnsavedChanges ? 'Save' : 'Saved'}
+      {isNew || hasUnsavedChanges ? text.save : text.saved}
     </button>
     {#if isNew || hasUnsavedChanges}
-      <button type="button" class="button" onclick={cancel}>{isNew ? 'Cancel' : 'Discard changes'}</button>
+      <button type="button" class="button" onclick={cancel}>{isNew ? text.cancel : text.discardChanges}</button>
     {/if}
     {#if !isNew}
-      <button type="button" class="button-quiet is-danger delete" onclick={remove}>Delete</button>
+      <button type="button" class="button-quiet is-danger delete" onclick={remove}>{text.delete}</button>
     {/if}
   </div>
 </form>

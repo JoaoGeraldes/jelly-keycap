@@ -1,5 +1,6 @@
 <!-- Text size (A− / A+) and theme controls, shown in the bar at the top right. -->
 <script>
+  import { textFor } from "../lib/i18n.svelte.js";
   import {
     TEXT_SCALE,
     applyDisplaySettings,
@@ -7,6 +8,8 @@
     nextTextScale,
     saveDisplaySettings,
   } from "../lib/display-settings.js";
+
+  const text = textFor("DisplaySettings");
 
   let settings = $state(loadDisplaySettings());
 
@@ -20,16 +23,16 @@
 <div class="display-settings">
   <button
     class="button-quiet"
-    aria-label="Smaller text"
-    title="Smaller text"
+    aria-label={text.smallerText}
+    title={text.smallerText}
     disabled={settings.textScale <= TEXT_SCALE.min}
     onclick={() => update({ textScale: nextTextScale(settings.textScale, -1) })}
     >A−</button
   >
   <button
     class="button-quiet"
-    aria-label="Larger text"
-    title="Larger text"
+    aria-label={text.largerText}
+    title={text.largerText}
     disabled={settings.textScale >= TEXT_SCALE.max}
     onclick={() => update({ textScale: nextTextScale(settings.textScale, 1) })}
     >A+</button
@@ -39,7 +42,7 @@
     onclick={() =>
       update({ theme: settings.theme === "dark" ? "light" : "dark" })}
   >
-    {settings.theme === "dark" ? "Light theme" : "Dark theme"}
+    {settings.theme === "dark" ? text.lightTheme : text.darkTheme}
   </button>
 </div>
 

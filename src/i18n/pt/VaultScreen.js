@@ -1,0 +1,23 @@
+// Textos de src/screens/VaultScreen.svelte.
+export default {
+  vaults: 'Cofres',
+  newVaultPlaceholder: 'Dê um nome ao novo cofre',
+  newVaultName: 'Nome do novo cofre',
+  newVault: 'Novo cofre',
+  howItWorks: 'Como funciona',
+  viewDatabase: 'Ver base de dados',
+  settings: 'Definições',
+  lock: 'Bloquear',
+  logins: 'Entradas',
+  newEntry: 'Nova entrada',
+  searchPlaceholder: (vaultName) => `Pesquisar em ${vaultName}`,
+  searchLogins: 'Pesquisar entradas',
+  clone: 'Clonar',
+  cloneNamed: (title) => `Clonar ${title}`,
+  noMatches: (vaultName, search) => `Nada em ${vaultName} corresponde a “${search}”.`,
+  emptyVault: 'Ainda não há entradas aqui. Adicione uma com Nova entrada.',
+  deleteVault: 'Eliminar este cofre',
+  noVaults: 'Crie um cofre para começar a guardar entradas.',
+  loginDetails: 'Detalhes da entrada',
+  pickAnEntry: 'Escolha uma entrada para a ver, ou adicione uma nova.',
+};

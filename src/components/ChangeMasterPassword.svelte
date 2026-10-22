@@ -1,7 +1,10 @@
 <!-- The "Master password" card in Settings: replaces the master password. -->
 <script>
+  import { textFor } from '../lib/i18n.svelte.js';
   import { MINIMUM_MASTER_PASSWORD_LENGTH, changeMasterPassword } from '../lib/vault.svelte.js';
   import CapsLockWarning from './CapsLockWarning.svelte';
+
+  const text = textFor('ChangeMasterPassword');
 
   let currentPassword = $state('');
   let newPassword = $state('');
@@ -14,7 +17,7 @@
     event.preventDefault();
     errorMessage = '';
     if (newPassword !== newPasswordAgain) {
-      errorMessage = 'The two new passwords don’t match.';
+      errorMessage = text.passwordsDontMatch;
       return;
     }
     isWorking = true;
@@ -30,20 +33,18 @@
 
 <section class="card">
   <div class="card-heading">
-    <h2>Master password</h2>
-    <p>The one password that unlocks all your vaults. Changing it keeps everything inside as it is.</p>
+    <h2>{text.title}</h2>
+    <p>{text.explanation}</p>
   </div>
 
   {#if isChanged}
-    <p class="notice" role="status">
-      Master password changed. Use the new one next time you unlock. Backups made before today still open with the old one.
-    </p>
+    <p class="notice" role="status">{text.changed}</p>
   {:else}
     <form onsubmit={submit}>
-      <label for="current-password">Current master password</label>
+      <label for="current-password">{text.currentLabel}</label>
       <input id="current-password" type="password" bind:value={currentPassword} autocomplete="current-password" required />
 
-      <label for="new-password">New master password</label>
+      <label for="new-password">{text.newLabel}</label>
       <input
         id="new-password"
         type="password"
@@ -53,13 +54,13 @@
         required
       />
 
-      <label for="new-password-again">Type the new one again</label>
+      <label for="new-password-again">{text.newAgainLabel}</label>
       <input id="new-password-again" type="password" bind:value={newPasswordAgain} autocomplete="new-password" required />
 
       <CapsLockWarning />
       {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
-      <button class="button-primary" disabled={isWorking}>{isWorking ? 'Changing…' : 'Change master password'}</button>
+      <button class="button-primary" disabled={isWorking}>{isWorking ? text.changing : text.change}</button>
     </form>
   {/if}
 </section>

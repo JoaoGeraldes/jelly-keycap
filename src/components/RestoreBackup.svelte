@@ -4,8 +4,11 @@
   file has been chosen.
 -->
 <script>
+  import { textFor } from '../lib/i18n.svelte.js';
   import { restoreBackup } from '../lib/vault.svelte.js';
   import CapsLockWarning from './CapsLockWarning.svelte';
+
+  const text = textFor('RestoreBackup');
 
   let backupFile = $state(null);
   let password = $state('');
@@ -27,19 +30,13 @@
 
 <section class="card">
   <div class="card-heading">
-    <h2>Restore a backup</h2>
-    <p>
-      Bring your vault back to how it was in a backup file. Your current vault is saved as a copy first, so nothing
-      is lost, and you can switch back any time by restoring that copy the same way.
-    </p>
-    <p>
-      Restoring copies what’s inside the backup into your usual vault file, so the app keeps using the same file and
-      location as before. The backup file you pick is only read, never changed.
-    </p>
+    <h2>{text.title}</h2>
+    <p>{text.explanation}</p>
+    <p>{text.howItWorks}</p>
   </div>
 
   <form onsubmit={submit}>
-    <label for="backup-file">Backup file</label>
+    <label for="backup-file">{text.backupFileLabel}</label>
     <input
       id="backup-file"
       type="file"
@@ -49,12 +46,12 @@
     />
 
     {#if backupFile}
-      <label for="restore-password">Your current master password, to confirm it’s you</label>
+      <label for="restore-password">{text.passwordLabel}</label>
       <input id="restore-password" type="password" bind:value={password} autocomplete="current-password" required />
       <CapsLockWarning />
       {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
-      <button class="button-primary" disabled={isRestoring}>{isRestoring ? 'Restoring…' : 'Restore this backup'}</button>
+      <button class="button-primary" disabled={isRestoring}>{isRestoring ? text.restoring : text.restore}</button>
     {/if}
   </form>
 </section>

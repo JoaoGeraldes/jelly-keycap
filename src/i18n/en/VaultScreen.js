@@ -1,0 +1,23 @@
+// Texts of src/screens/VaultScreen.svelte.
+export default {
+  vaults: 'Vaults',
+  newVaultPlaceholder: 'Name the new vault',
+  newVaultName: 'New vault name',
+  newVault: 'New vault',
+  howItWorks: 'How it works',
+  viewDatabase: 'View database',
+  settings: 'Settings',
+  lock: 'Lock',
+  logins: 'Logins',
+  newEntry: 'New entry',
+  searchPlaceholder: (vaultName) => `Search ${vaultName}`,
+  searchLogins: 'Search logins',
+  clone: 'Clone',
+  cloneNamed: (title) => `Clone ${title}`,
+  noMatches: (vaultName, search) => `Nothing in ${vaultName} matches “${search}”.`,
+  emptyVault: 'No logins here yet. Add one with New entry.',
+  deleteVault: 'Delete this vault',
+  noVaults: 'Create a vault to start saving logins.',
+  loginDetails: 'Login details',
+  pickAnEntry: 'Pick an entry to see it, or add a new one.',
+};

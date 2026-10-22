@@ -3,6 +3,7 @@
   after that, asks for it to unlock.
 -->
 <script>
+  import { textFor } from '../lib/i18n.svelte.js';
   import {
     MINIMUM_MASTER_PASSWORD_LENGTH,
     createMasterPassword,
@@ -12,6 +13,8 @@
   } from '../lib/vault.svelte.js';
   import CapsLockWarning from '../components/CapsLockWarning.svelte';
 
+  const text = textFor('LockScreen');
+
   let isFirstRun = $state(null); // null while asking the server
   let password = $state('');
   let passwordAgain = $state('');
@@ -20,13 +23,13 @@
 
   hasMasterPassword()
     .then((hasOne) => (isFirstRun = !hasOne))
-    .catch(() => (errorMessage = 'Can’t reach the vault server. Check that it’s running, then reload this page.'));
+    .catch(() => (errorMessage = text.cantReachServer));
 
   async function submit(event) {
     event.preventDefault();
     errorMessage = '';
     if (isFirstRun && password !== passwordAgain) {
-      errorMessage = 'The two passwords don’t match.';
+      errorMessage = text.passwordsDontMatch;
       return;
     }
     isWorking = true;
@@ -48,19 +51,16 @@
   {#if isFirstRun !== null}
     <form onsubmit={submit}>
       {#if isFirstRun}
-        <h1>Create your master password</h1>
-        <p class="explanation">
-          This one password unlocks everything you save here. It can’t be reset or recovered, so write it down
-          and keep it somewhere safe.
-        </p>
+        <h1>{text.createTitle}</h1>
+        <p class="explanation">{text.createExplanation}</p>
       {:else}
-        <h1>Unlock your vault</h1>
+        <h1>{text.unlockTitle}</h1>
       {/if}
 
       <!-- Why the vault locked itself, if it did. Informational, so not shown as an error. -->
       {#if session.lockReason}<p class="notice" role="status">{session.lockReason}</p>{/if}
 
-      <label for="master-password">Master password</label>
+      <label for="master-password">{text.masterPasswordLabel}</label>
       <!-- svelte-ignore a11y_autofocus -->
       <input
         id="master-password"
@@ -73,7 +73,7 @@
       />
 
       {#if isFirstRun}
-        <label for="master-password-again">Type it again</label>
+        <label for="master-password-again">{text.typeItAgainLabel}</label>
         <input id="master-password-again" type="password" bind:value={passwordAgain} autocomplete="new-password" required />
       {/if}
 
@@ -81,7 +81,7 @@
       {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
       <button class="button-primary" disabled={isWorking}>
-        {#if isFirstRun}{isWorking ? 'Creating…' : 'Create master password'}{:else}{isWorking ? 'Unlocking…' : 'Unlock'}{/if}
+        {#if isFirstRun}{isWorking ? text.creating : text.create}{:else}{isWorking ? text.unlocking : text.unlock}{/if}
       </button>
     </form>
   {:else if errorMessage}

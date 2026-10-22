@@ -3,12 +3,15 @@
   in two tabs: Simple (everyday words) and Technical.
   Nodes can be dragged; arrows follow. Hover or focus a node to read its note; the note stays
   open while the cursor is on it, so its documentation links can be clicked.
-  The content lives in src/lib/how-it-works.js.
+  The diagrams' shape lives in src/lib/how-it-works.js, their words in src/i18n/<language>/HowItWorks.js.
 -->
 <script>
   import { diagrams } from '../lib/how-it-works.js';
+  import { textFor } from '../lib/i18n.svelte.js';
 
   let { onClose } = $props();
+
+  const text = textFor('HowItWorks');
 
   const NODE_WIDTH = 160;
   const NODE_HEIGHT = 44;
@@ -21,6 +24,7 @@
   let drag = null; // { node, zoom, offsetX, offsetY } while a node is being dragged
 
   const diagram = $derived(diagrams[diagramIndex]);
+  const diagramText = $derived(text[diagram.id]); // name, legend and node texts
   const nodes = $derived(nodesByDiagram[diagramIndex]);
   const nodesById = $derived(Object.fromEntries(nodes.map((node) => [node.id, node])));
   const canvasWidth = $derived(Math.max(...nodes.map((node) => node.x)) + NODE_WIDTH);
@@ -51,20 +55,20 @@
 
 <div class="how-it-works">
   <header>
-    <h1>How it works</h1>
-    <button class="button-quiet" onclick={onClose}>Close</button>
+    <h1>{text.title}</h1>
+    <button class="button-quiet" onclick={onClose}>{text.close}</button>
   </header>
 
-  <nav aria-label="Level of detail">
-    {#each diagrams as { name }, index}
+  <nav aria-label={text.levelOfDetail}>
+    {#each diagrams as { id }, index}
       <button class="button" class:is-selected={index === diagramIndex} onclick={() => (diagramIndex = index)}>
-        {name}
+        {text[id].name}
       </button>
     {/each}
   </nav>
 
   <p class="legend">
-    {#each Object.entries(diagram.legend) as [kind, label]}
+    {#each Object.entries(diagramText.legend) as [kind, label]}
       <span class="swatch kind-{kind}"></span>{label}
     {/each}
   </p>
@@ -109,10 +113,10 @@
             onpointermove={moveDrag}
             onpointerup={() => (drag = null)}
           >
-            {node.title}
+            {diagramText.nodes[node.id].title}
           </button>
           <div class="note" role="tooltip">
-            {node.note}
+            {diagramText.nodes[node.id].note}
             {#each node.docs ?? [] as link}
               <a href={link.url} target="_blank" rel="noopener noreferrer">{link.title}</a>
             {/each}

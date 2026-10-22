@@ -3,6 +3,7 @@
   login being viewed or edited. On a phone it shows one column at a time.
 -->
 <script>
+  import { textFor } from "../lib/i18n.svelte.js";
   import DatabaseViewer from "../components/DatabaseViewer.svelte";
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
@@ -10,6 +11,8 @@
   import ItemEditor from "../components/ItemEditor.svelte";
   import UndoStack from "../components/UndoStack.svelte";
   import { cloneItem, createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
+
+  const text = textFor("VaultScreen");
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
@@ -95,8 +98,8 @@
   class:is-showing-detail={selectedItem || openPanel}
   class:is-showing-wide-panel={isWidePanelOpen}
 >
-  <nav class="vaults" aria-label="Vaults">
-    <p class="vaults-heading">Vaults</p>
+  <nav class="vaults" aria-label={text.vaults}>
+    <p class="vaults-heading">{text.vaults}</p>
 
     {#each session.vaults as vault (vault.id)}
       <button
@@ -116,8 +119,8 @@
           <!-- svelte-ignore a11y_autofocus -->
           <input
             bind:value={newVaultName}
-            placeholder="Name the new vault"
-            aria-label="New vault name"
+            placeholder={text.newVaultPlaceholder}
+            aria-label={text.newVaultName}
             onblur={addVault}
             autofocus
           />
@@ -127,26 +130,26 @@
           class="button-quiet new-vault"
           onclick={() => (isNamingNewVault = true)}
         >
-          <span aria-hidden="true">+</span> New vault
+          <span aria-hidden="true">+</span> {text.newVault}
         </button>
       {/if}
     </div>
 
     <div class="vaults-footer">
       <button class="button-quiet" onclick={() => showPanel("how-it-works")}
-        >How it works</button
+        >{text.howItWorks}</button
       >
       <button class="button-quiet" onclick={() => showPanel("database")}
-        >View database</button
+        >{text.viewDatabase}</button
       >
       <button class="button-quiet" onclick={() => showPanel("settings")}
-        >Settings</button
+        >{text.settings}</button
       >
-      <button class="button-quiet" onclick={() => lock()}>Lock</button>
+      <button class="button-quiet" onclick={() => lock()}>{text.lock}</button>
     </div>
   </nav>
 
-  <section class="items" aria-label="Logins">
+  <section class="items" aria-label={text.logins}>
     {#if selectedVault}
       <!-- Stays at the top while the list scrolls, so adding and searching are always in reach. -->
       <div class="items-top">
@@ -154,14 +157,14 @@
           <h1>{selectedVault.name}</h1>
           <button
             class="button-primary"
-            onclick={() => showItem(newItem(selectedVaultId))}>New entry</button
+            onclick={() => showItem(newItem(selectedVaultId))}>{text.newEntry}</button
           >
         </header>
         <input
           type="search"
           bind:value={searchText}
-          placeholder="Search {selectedVault.name}"
-          aria-label="Search logins"
+          placeholder={text.searchPlaceholder(selectedVault.name)}
+          aria-label={text.searchLogins}
         />
       </div>
 
@@ -178,15 +181,15 @@
               </span>
             </button>
             <!-- Opens the clone unsaved, so it can be renamed first and nothing is added until Save. -->
-            <button class="button clone" aria-label="Clone {item.title}" onclick={() => showItem(cloneItem(item))}>
-              Clone
+            <button class="button clone" aria-label={text.cloneNamed(item.title)} onclick={() => showItem(cloneItem(item))}>
+              {text.clone}
             </button>
           </li>
         {:else}
           <li class="empty">
             {searchText
-              ? `Nothing in ${selectedVault.name} matches “${searchText}”.`
-              : "No logins here yet. Add one with New entry."}
+              ? text.noMatches(selectedVault.name, searchText)
+              : text.emptyVault}
           </li>
         {/each}
       </ul>
@@ -194,14 +197,14 @@
       <button
         class="button-quiet is-danger delete-vault"
         onclick={() => askToDeleteVault(selectedVault)}
-        >Delete this vault</button
+        >{text.deleteVault}</button
       >
     {:else}
-      <p class="empty">Create a vault to start saving logins.</p>
+      <p class="empty">{text.noVaults}</p>
     {/if}
   </section>
 
-  <section class="detail" aria-label="Login details">
+  <section class="detail" aria-label={text.loginDetails}>
     {#if openPanel === "settings"}
       <Settings onClose={() => showItem(null)} />
     {:else if openPanel === "database"}
@@ -219,7 +222,7 @@
         />
       {/key}
     {:else}
-      <p class="empty">Pick an entry to see it, or add a new one.</p>
+      <p class="empty">{text.pickAnEntry}</p>
     {/if}
   </section>
 </div>

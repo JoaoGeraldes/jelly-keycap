@@ -1,18 +1,20 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { diagrams } from '../src/lib/how-it-works.js';
+import english from '../src/i18n/en/HowItWorks.js';
 
 const [simple, technical] = diagrams;
 
-for (const { name, nodes, connections, legend } of diagrams) {
-  describe(`the ${name} diagram`, () => {
+for (const { id, nodes, connections } of diagrams) {
+  describe(`the ${id} diagram`, () => {
     const nodeIds = nodes.map((node) => node.id);
+    const text = english[id]; // other languages are checked against English in i18n.test.js
 
     test('every node has a unique id, a title, a note and a kind the legend explains', () => {
       assert.equal(new Set(nodeIds).size, nodes.length);
       for (const node of nodes) {
-        assert.ok(node.title && node.note, node.id);
-        assert.ok(legend[node.kind], `"${node.id}" has a kind with no legend`);
+        assert.ok(text.nodes[node.id]?.title && text.nodes[node.id]?.note, node.id);
+        assert.ok(text.legend[node.kind], `"${node.id}" has a kind with no legend`);
       }
     });
 

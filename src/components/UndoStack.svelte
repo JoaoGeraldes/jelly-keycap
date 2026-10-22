@@ -4,6 +4,7 @@
   pauses every countdown, so there is time to read and decide.
 -->
 <script>
+  import { textFor } from '../lib/i18n.svelte.js';
   import {
     UNDO_DELETE_MS,
     pauseDeletions,
@@ -12,6 +13,8 @@
     session,
     undoDeletion,
   } from '../lib/vault.svelte.js';
+
+  const text = textFor('UndoStack');
 
   const MAX_SHOWN = 3;
 
@@ -41,15 +44,15 @@
   >
     {#each shown as pending (pending.item.id)}
       <div class="undo-note">
-        <span class="name">“{pending.item.title}” deleted</span>
-        <button class="button-quiet" onclick={() => undo([pending.item.id])}>Undo</button>
+        <span class="name">{text.deleted(pending.item.title)}</span>
+        <button class="button-quiet" onclick={() => undo([pending.item.id])}>{text.undo}</button>
         <span class="countdown" style:animation-duration="{UNDO_DELETE_MS}ms"></span>
       </div>
     {/each}
     {#if undoable.length > 1}
       <div class="undo-all">
-        <span>{hiddenCount ? `and ${hiddenCount} more` : ''}</span>
-        <button class="button-quiet" onclick={() => undo(undoable.map((pending) => pending.item.id))}>Undo all</button>
+        <span>{hiddenCount ? text.andMore(hiddenCount) : ''}</span>
+        <button class="button-quiet" onclick={() => undo(undoable.map((pending) => pending.item.id))}>{text.undoAll}</button>
       </div>
     {/if}
   </div>

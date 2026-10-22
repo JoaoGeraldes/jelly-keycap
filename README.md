@@ -15,6 +15,7 @@ dependency in the browser (Argon2).
 - [Backup and restore](#backup-and-restore)
 - [Configuration](#configuration)
 - [Security notes](#security-notes)
+- [Translations](#translations)
 - [Tests](#tests)
 - [Project layout](#project-layout)
 - [Not built yet](#not-built-yet)
@@ -133,7 +134,7 @@ via [hash-wasm](https://github.com/Daninet/hash-wasm).
 
 **How it works** in the app draws all of this as a diagram you can drag around, with a note on
 each step when you hover it. It has two tabs: **Simple**, in everyday words with fewer steps,
-and **Technical**, with every algorithm linked to its official documentation. Its content lives in `src/lib/how-it-works.js`.
+and **Technical**, with every algorithm linked to its official documentation. Its shape (nodes, arrows, documentation links) lives in `src/lib/how-it-works.js`, and its words in `src/i18n/<language>/HowItWorks.js`.
 
 ## Database
 
@@ -244,6 +245,30 @@ Please read these before putting this on a network.
   could in theory serve code that leaks your password. This is the same trade-off every web-based
   password manager makes. Self-hosting means that whoever is you.
 
+## Translations
+
+Each component's text has one file per language, named after the component:
+
+```
+src/i18n/en/ItemEditor.js     English, the reference
+src/i18n/pt/ItemEditor.js     Portuguese (Portugal)
+```
+
+A component reads its texts with `const text = textFor('ItemEditor')`, then `{text.save}`. A text
+that includes a value is a function: `` notSaved: (reason) => `Not saved: ${reason}` ``. Repeating
+common words like "Cancel" in several files is on purpose: every file stands on its own.
+
+- **Translating a component:** move its texts into `src/i18n/en/<Component>.js`, add the same
+  keys to every other language, and list the file in each language's `index.js`.
+- **Adding a language:** copy `src/i18n/en/`, translate it, and add it to `LANGUAGES` and
+  `TRANSLATIONS` in `src/lib/i18n.svelte.js`.
+- **Nothing gets forgotten:** `tests/i18n.test.js` fails if a language is missing a file or a
+  text that English has. In the app, anything missing still shows in English.
+
+The language is chosen in **Settings** and remembered in this browser; until then, the browser's
+language is used. Every screen is translated. What isn't yet: error messages that come from
+`src/lib/vault.svelte.js` or the server (like a wrong master password), which are still in English.
+
 ## Tests
 
 ```sh
@@ -259,7 +284,8 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/master-password.test.js` | Creating, unlocking, locking, changing the master password | `vault.svelte.js`, `server/api.js`, `server/schema.sql`, `crypto.js` |
 | `tests/vaults-and-logins.test.js` | Vaults, logins, nothing readable on the server, backup | `vault.svelte.js`, `server/api.js`, `server/schema.sql` |
 | `tests/database-viewer.test.js` | Listing tables, every column shown, pages, unknown tables refused, read-only | `server/api.js`, `server/schema.sql` |
-| `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js` |
+| `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js`, `src/i18n/en/HowItWorks.js` |
+| `tests/i18n.test.js` | Every language has every English text; texts follow the chosen language; English fills any gap | `src/lib/i18n.svelte.js`, `src/i18n/` |
 | `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is saved | `src/lib/display-settings.js` |
 | `tests/caps-lock.test.js` | Caps Lock warning turns on and off with key presses | `src/lib/caps-lock.svelte.js` |
 | `tests/database-file.test.js` | File location; restoring a backup, the safety copy, wrong or damaged files, password check | `server/api.js`, `vault.svelte.js` |
@@ -294,15 +320,16 @@ src/
     api.js              One function per API route
     vault.svelte.js     Session state; encryption on the way out, decryption on the way in
     display-settings.js Text size and theme: load, apply, remember
+    i18n.svelte.js      Translations: the chosen language, and textFor(component)
     format.js           How stored values are shown: local dates and times, file sizes
     caps-lock.svelte.js Whether Caps Lock is on, for the warning under password fields
-    how-it-works.js     Nodes and arrows of the "How it works" diagrams (Simple and Technical)
+    how-it-works.js     Shape of the "How it works" diagrams: nodes, positions, arrows, doc links
   screens/
     LockScreen.svelte   Create or enter the master password
     VaultScreen.svelte  Vaults, list of logins, and the selected login
   components/
     ItemEditor.svelte   View and edit one login
-    Settings.svelte              Settings: the master password card, and a placeholder for the language
+    Settings.svelte              Settings: the master password and language cards
     ChangeMasterPassword.svelte  The "Master password" card in Settings
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
@@ -311,6 +338,8 @@ src/
     RestoreBackup.svelte         Restore a backup (current vault saved first)
     HowItWorks.svelte            Draggable diagram of the encryption
     UndoStack.svelte             "Deleted · Undo" notes in the corner while a deleted entry can still come back
+  i18n/
+    en/, pt/            One text file per component, per language (see Translations)
 tests/                  See Tests above
 vite.config.js          Svelte build, and the API mounted inside the dev server
 ```

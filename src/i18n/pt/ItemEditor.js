@@ -1,0 +1,21 @@
+// Textos de src/components/ItemEditor.svelte.
+export default {
+  backToList: 'Voltar à lista',
+  nameLabel: 'Nome: para que serve, para o encontrar mais tarde (como GitHub, Wi‑Fi de casa ou PIN do banco)',
+  usernameLabel: 'Utilizador ou email',
+  passwordLabel: 'Palavra-passe',
+  show: 'Mostrar',
+  hide: 'Ocultar',
+  copy: 'Copiar',
+  copied: 'Copiado',
+  generatePassword: 'Gerar uma palavra-passe forte',
+  websiteLabel: 'Site',
+  open: 'Abrir',
+  notesLabel: 'Notas',
+  save: 'Guardar',
+  saved: 'Guardado',
+  cancel: 'Cancelar',
+  discardChanges: 'Descartar alterações',
+  delete: 'Eliminar',
+  notSaved: (reason) => `Não guardado: ${reason}`,
+};
