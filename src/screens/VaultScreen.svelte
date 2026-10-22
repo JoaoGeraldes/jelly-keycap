@@ -8,7 +8,7 @@
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
-  import { createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
+  import { cloneItem, createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
@@ -163,12 +163,8 @@
 
       <ul>
         {#each visibleItems as item (item.id)}
-          <li>
-            <button
-              class="item-row"
-              class:is-selected={item.id === selectedItem?.id}
-              onclick={() => showItem(item)}
-            >
+          <li class="item" class:is-selected={item.id === selectedItem?.id}>
+            <button class="item-row" onclick={() => showItem(item)}>
               <span class="initial" aria-hidden="true"
                 >{(item.title[0] ?? "?").toUpperCase()}</span
               >
@@ -176,6 +172,10 @@
                 <span class="item-title">{item.title}</span>
                 <span class="item-subtitle">{item.username || item.url}</span>
               </span>
+            </button>
+            <!-- Opens the clone unsaved, so it can be renamed first and nothing is added until Save. -->
+            <button class="button clone" aria-label="Clone {item.title}" onclick={() => showItem(cloneItem(item))}>
+              Clone
             </button>
           </li>
         {:else}
@@ -287,6 +287,7 @@
     align-items: center;
     gap: 0.75rem;
     width: 100%;
+    min-width: 0; /* lets long names shorten with "…" instead of pushing Clone out */
     padding: 0.5rem 0.6rem;
     border: 0;
     border-radius: var(--radius);
@@ -303,8 +304,21 @@
   }
 
   .vault-button.is-selected,
-  .item-row.is-selected {
+  .item.is-selected .item-row {
     background: var(--color-selection);
+  }
+
+  /* Clone sits outside the row's highlight, outlined and a gap apart, so it reads as its own action. */
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .clone {
+    flex: none;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.85rem;
   }
 
   .vault-button span:first-child {

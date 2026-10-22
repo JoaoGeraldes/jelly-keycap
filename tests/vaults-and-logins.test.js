@@ -69,6 +69,34 @@ test('a login moved to another vault stays readable there', async () => {
   assert.equal(window.session.items[0].vaultId, workId);
 });
 
+test('a cloned login is a separate copy with the same fields, named "(clone 1)"', async () => {
+  const login = await window.saveItem({
+    ...window.newItem(personalVaultId()),
+    title: 'GitHub',
+    username: 'me@example.com',
+    password: 'secret',
+  });
+
+  const clone = await window.saveItem(window.cloneItem(login));
+  await relock();
+
+  assert.notEqual(clone.id, login.id);
+  assert.deepEqual({ ...clone, id: login.id, title: 'GitHub' }, login);
+  assert.deepEqual(window.session.items.map((item) => item.title).sort(), ['GitHub', 'GitHub (clone 1)']);
+});
+
+test('each clone takes the next free number, also when cloning a clone', async () => {
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'ASD' });
+
+  const first = await window.saveItem(window.cloneItem(login));
+  const second = await window.saveItem(window.cloneItem(login));
+  const cloneOfClone = window.cloneItem(first);
+
+  assert.equal(first.title, 'ASD (clone 1)');
+  assert.equal(second.title, 'ASD (clone 2)');
+  assert.equal(cloneOfClone.title, 'ASD (clone 3)');
+});
+
 test('a deleted login is gone', async () => {
   const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
 

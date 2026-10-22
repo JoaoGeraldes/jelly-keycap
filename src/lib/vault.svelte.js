@@ -143,6 +143,21 @@ export function newItem(vaultId) {
   return { id: crypto.randomUUID(), vaultId, type: 'login', title: '', username: '', password: '', url: '', notes: '' };
 }
 
+const CLONE_SUFFIX = / \(clone (\d+)\)$/;
+
+/**
+ * An unsaved copy of an item for the editor: every field the same, but its own id and the next
+ * free number in its name ("GitHub (clone 1)", "GitHub (clone 2)", ...). Cloning a clone counts
+ * from the original's name. Names are encrypted on the server, so the count uses the unlocked items.
+ */
+export function cloneItem(item) {
+  const baseTitle = item.title.replace(CLONE_SUFFIX, '');
+  const usedNumbers = session.items
+    .filter((other) => other.title.replace(CLONE_SUFFIX, '') === baseTitle)
+    .map((other) => Number(other.title.match(CLONE_SUFFIX)?.[1] ?? 0)); // the original counts as 0
+  return { ...item, id: crypto.randomUUID(), title: `${baseTitle} (clone ${Math.max(0, ...usedNumbers) + 1})` };
+}
+
 /** Creates or updates an item. Encrypts with the key of whichever vault the item is in. */
 export async function saveItem(item) {
   const { id, vaultId, type, ...fields } = item;
