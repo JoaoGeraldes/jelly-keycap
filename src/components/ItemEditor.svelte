@@ -56,7 +56,12 @@
 <form class="item-editor" onsubmit={save}>
   <button type="button" class="button-quiet back" onclick={onClose}>Back to list</button>
 
-  <input class="title-input" bind:value={draft.title} placeholder="Name, like GitHub" aria-label="Name" required />
+  <div class="field">
+    <label for="item-title">Name: what this is for, so you can find it later (like GitHub, Home Wi‑Fi or Bank PIN)</label>
+    <!-- A new entry starts with its name, so typing can start right away. Focused directly because
+         Svelte's autofocus is skipped when something else (here, the New entry button) has focus. -->
+    <input id="item-title" class="title-input" bind:value={draft.title} {@attach (input) => isNew && input.focus()} required />
+  </div>
 
   <div class="field">
     <label for="item-username">Username or email</label>
