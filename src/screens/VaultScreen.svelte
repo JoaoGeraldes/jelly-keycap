@@ -10,7 +10,14 @@
   import Settings from "../components/Settings.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
   import UndoStack from "../components/UndoStack.svelte";
-  import { cloneItem, createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
+  import {
+    cloneItem,
+    createVault,
+    deleteVault,
+    lock,
+    newItem,
+    session,
+  } from "../lib/vault.svelte.js";
 
   const text = textFor("VaultScreen");
 
@@ -50,6 +57,15 @@
 
   function countItems(vaultId) {
     return session.items.filter((item) => item.vaultId === vaultId).length;
+  }
+
+  // With the phone menu open, the content below is dimmed: a tap there only closes the menu,
+  // so nothing behind it gets pressed by accident.
+  function closeMenuFirst(event) {
+    if (!isMenuOpen) return;
+    event.preventDefault();
+    event.stopPropagation();
+    isMenuOpen = false;
   }
 
   // Picking anything in the menu folds it away again on phones.
@@ -101,6 +117,7 @@
   class="vault-screen"
   class:is-showing-detail={selectedItem || openPanel}
   class:is-showing-wide-panel={isWidePanelOpen}
+  class:is-menu-open={isMenuOpen}
 >
   <nav class="vaults" aria-label={text.vaults}>
     <!-- Phones only: the menu starts folded away, so the list of logins gets the screen. -->
@@ -145,7 +162,8 @@
             class="button-quiet new-vault"
             onclick={() => (isNamingNewVault = true)}
           >
-            <span aria-hidden="true">+</span> {text.newVault}
+            <span aria-hidden="true">+</span>
+            {text.newVault}
           </button>
         {/if}
       </div>
@@ -165,7 +183,11 @@
     </div>
   </nav>
 
-  <section class="items" aria-label={text.logins}>
+  <section
+    class="items"
+    aria-label={text.logins}
+    onclickcapture={closeMenuFirst}
+  >
     {#if selectedVault}
       <!-- Stays at the top while the list scrolls, so adding and searching are always in reach. -->
       <div class="items-top">
@@ -173,7 +195,8 @@
           <h1>{selectedVault.name}</h1>
           <button
             class="button-primary"
-            onclick={() => showItem(newItem(selectedVaultId))}>{text.newEntry}</button
+            onclick={() => showItem(newItem(selectedVaultId))}
+            >{text.newEntry}</button
           >
         </header>
         <input
@@ -197,7 +220,11 @@
               </span>
             </button>
             <!-- Opens the clone unsaved, so it can be renamed first and nothing is added until Save. -->
-            <button class="button clone" aria-label={text.cloneNamed(item.title)} onclick={() => showItem(cloneItem(item))}>
+            <button
+              class="button clone"
+              aria-label={text.cloneNamed(item.title)}
+              onclick={() => showItem(cloneItem(item))}
+            >
               {text.clone}
             </button>
           </li>
@@ -220,7 +247,11 @@
     {/if}
   </section>
 
-  <section class="detail" aria-label={text.loginDetails}>
+  <section
+    class="detail"
+    aria-label={text.loginDetails}
+    onclickcapture={closeMenuFirst}
+  >
     {#if openPanel === "settings"}
       <Settings onClose={() => showItem(null)} />
     {:else if openPanel === "database"}
@@ -408,8 +439,12 @@
   .vaults-footer {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     margin-top: auto;
+  }
+
+  /* Full width, like the vault rows, so the hover fills the row and the target is easy to hit. */
+  .vaults-footer button {
+    justify-content: flex-start;
   }
 
   header {
@@ -496,6 +531,17 @@
 
     .menu {
       display: none;
+    }
+
+    /* Dimmed while the menu is open, so the menu stands out from what's behind it. */
+    .items,
+    .detail {
+      transition: opacity 0.2s;
+    }
+
+    .is-menu-open .items,
+    .is-menu-open .detail {
+      opacity: 0.1;
     }
 
     .menu.is-open {

@@ -315,6 +315,7 @@ src/
   main.js               Mounts the app
   App.svelte            Top bar, then the lock screen or the vault screen
   app.css               Color tokens for both themes (light is Tailwind's slate, dark follows VS Code's Dark Modern), base elements, buttons
+  fonts/                Atkinson Hyperlegible Mono, the app's font, chosen for readability (SIL Open Font License)
   lib/
     crypto.js           Argon2id, AES-GCM, base64, password generator
     api.js              One function per API route

@@ -12,6 +12,7 @@ const CONTENT_TYPES = {
   '.js': 'text/javascript',
   '.css': 'text/css',
   '.svg': 'image/svg+xml',
+  '.ttf': 'font/ttf',
 };
 
 // The page may only load its own files. 'wasm-unsafe-eval' lets the Argon2 WebAssembly run.

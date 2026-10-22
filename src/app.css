@@ -9,8 +9,18 @@
  * Dark: VS Code's default "Dark Modern" theme (colors from its theme file).
  * The theme (data-theme on <html>) and --text-scale are set by src/lib/display-settings.js.
  * 1rem is the body text size, so every rem-based size follows --text-scale.
- * Fonts are the system's own, so the app works offline and loads nothing from the internet.
+ * All text uses Atkinson Hyperlegible Mono, kept in src/fonts/ so the app still loads nothing
+ * from the internet. System fonts are the fallback while it loads.
  */
+
+/* Atkinson Hyperlegible Mono (SIL Open Font License), made by the Braille Institute for low vision.
+   0 and O, and 1, l and I, look clearly different, which matters when reading a password. */
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("./fonts/AtkinsonHyperlegibleMono-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800; /* one variable file holds every weight */
+  font-display: swap; /* text shows straight away in a fallback font, then switches */
+}
 
 :root {
   --color-background: #f8fafc; /* the main area · slate-50 */
@@ -30,8 +40,8 @@
   --color-solid: #334155; /* filled blocks, like the algorithm steps in "How it works" · slate-700 */
   --color-on-solid: #ffffff;
 
-  --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-ui: "Atkinson Hyperlegible Mono", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --font-size: 13px;
   --text-scale: 1;
   --radius: 2px;
