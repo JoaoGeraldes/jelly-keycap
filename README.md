@@ -155,6 +155,10 @@ Deleting a vault deletes its items too (`ON DELETE CASCADE`).
 and 50 rows per page. Dates (`*_at` columns) are shown in your own language and time zone; pointing
 at one shows the stored value. It's a quick way to check for yourself that nothing secret is readable.
 
+**Deleting an entry** hides it at once but only deletes it from the file after 5 seconds, so
+the note in the corner can bring it back. Locking, closing or reloading the app before then keeps
+the entry. This is the only thing that waits; everything else is saved immediately.
+
 **What someone with only the file can see:** how many vaults and items exist, which item is
 in which vault, item types, and when things were created or changed. Nothing else.
 
@@ -305,6 +309,7 @@ src/
     DatabaseViewer.svelte        Where the file is, and a read-only view of every table, page by page
     RestoreBackup.svelte         Restore a backup (current vault saved first)
     HowItWorks.svelte            Draggable diagram of the encryption
+    UndoStack.svelte             "Deleted · Undo" notes in the corner while a deleted entry can still come back
 tests/                  See Tests above
 vite.config.js          Svelte build, and the API mounted inside the dev server
 ```
@@ -320,6 +325,6 @@ Each of these fits the current design without changing it:
   only the UI control is missing.
 - **More item types**, such as notes, API keys, SSH keys and `.env` files. `items.type` is
   ready for them.
-- **Comfort features:** auto-lock after inactivity, clearing the clipboard after copying, trash and undo.
+- **Comfort features:** auto-lock after inactivity, clearing the clipboard after copying, a trash for deleted entries.
 - **A CLI** that reads the same file, for scripts and environment variables.
 - **Schema migrations**, using SQLite's `PRAGMA user_version` once the schema first changes.

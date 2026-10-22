@@ -29,9 +29,15 @@
     }
   }
 
-  async function remove() {
-    if (!confirm(`Delete “${draft.title}”? This can’t be undone.`)) return;
-    await deleteItem(item.id);
+  // A new entry has nothing to go back to, so cancelling closes it; a saved one returns to its saved values.
+  function cancel() {
+    if (isNew) onClose();
+    else draft = { ...item };
+  }
+
+  // No "Are you sure?": the undo note in the corner is the safety net.
+  function remove() {
+    deleteItem(item.id);
     onClose();
   }
 
@@ -107,12 +113,16 @@
 
   {#if errorMessage}<p class="error" role="alert">{errorMessage}</p>{/if}
 
+  <!-- Save and Cancel sit together; Delete is set apart at the far end, so it is never hit by mistake. -->
   <div class="actions">
     <button class="button-primary" disabled={!isNew && !hasUnsavedChanges}>
       {isNew || hasUnsavedChanges ? 'Save' : 'Saved'}
     </button>
+    {#if isNew || hasUnsavedChanges}
+      <button type="button" class="button" onclick={cancel}>{isNew ? 'Cancel' : 'Discard changes'}</button>
+    {/if}
     {#if !isNew}
-      <button type="button" class="button-quiet is-danger" onclick={remove}>Delete</button>
+      <button type="button" class="button-quiet is-danger delete" onclick={remove}>Delete</button>
     {/if}
   </div>
 </form>
@@ -164,6 +174,12 @@
   .actions {
     display: flex;
     gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  .delete {
+    margin-left: auto;
   }
 
   .back {

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, test } from 'node:test';
+import { afterEach, beforeEach, mock, test } from 'node:test';
 import assert from 'node:assert/strict';
 import { writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -15,7 +15,10 @@ beforeEach(async () => {
   window = await openWindow();
   await window.createMasterPassword(PASSWORD);
 });
-afterEach(() => server.stop());
+afterEach(() => {
+  mock.timers.reset();
+  server.stop();
+});
 
 const personalVaultId = () => window.session.vaults[0].id;
 
@@ -97,13 +100,62 @@ test('each clone takes the next free number, also when cloning a clone', async (
   assert.equal(cloneOfClone.title, 'ASD (clone 3)');
 });
 
-test('a deleted login is gone', async () => {
+test('a deleted login leaves the list at once, and the server once the time to undo runs out', async () => {
+  mock.timers.enable({ apis: ['setTimeout', 'Date'] });
   const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
 
-  await window.deleteItem(login.id);
+  const deleted = window.deleteItem(login.id);
+  assert.deepEqual(window.session.items, []);
+  mock.timers.tick(window.UNDO_DELETE_MS);
+  await deleted;
   await relock();
 
   assert.deepEqual(window.session.items, []);
+});
+
+test('undo puts a deleted login back in its place, and the server keeps it', async () => {
+  mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  const vaultId = personalVaultId();
+  for (const title of ['A', 'B', 'C']) await window.saveItem({ ...window.newItem(vaultId), title });
+  const second = window.session.items[1];
+
+  const deleted = window.deleteItem(second.id);
+  window.undoDeletion(second.id);
+  mock.timers.tick(window.UNDO_DELETE_MS);
+  await deleted;
+
+  assert.deepEqual(window.session.items.map((item) => item.title), ['A', 'B', 'C']);
+  await relock();
+  assert.equal(window.session.items.length, 3);
+});
+
+test('pausing stops the countdown until it resumes', async () => {
+  mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
+
+  const deleted = window.deleteItem(login.id);
+  mock.timers.tick(1000);
+  window.pauseDeletions();
+  mock.timers.tick(window.UNDO_DELETE_MS);
+  assert.equal(window.pendingDeletions.length, 1);
+
+  window.resumeDeletions();
+  mock.timers.tick(window.UNDO_DELETE_MS - 1000);
+  await deleted;
+  assert.equal(window.pendingDeletions.length, 0);
+});
+
+test('locking before the time to undo runs out keeps the login', async () => {
+  mock.timers.enable({ apis: ['setTimeout', 'Date'] });
+  const login = await window.saveItem({ ...window.newItem(personalVaultId()), title: 'GitHub' });
+
+  const deleted = window.deleteItem(login.id);
+  window.lock();
+  mock.timers.tick(window.UNDO_DELETE_MS);
+  await deleted;
+  await window.unlock(PASSWORD);
+
+  assert.deepEqual(window.session.items.map((item) => item.title), ['GitHub']);
 });
 
 test('deleting a vault deletes its logins and leaves other vaults alone', async () => {

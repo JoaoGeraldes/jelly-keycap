@@ -8,6 +8,7 @@
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
   import ItemEditor from "../components/ItemEditor.svelte";
+  import UndoStack from "../components/UndoStack.svelte";
   import { cloneItem, createVault, deleteVault, lock, newItem, session } from "../lib/vault.svelte.js";
 
   let selectedVaultId = $state(session.vaults[0]?.id);
@@ -231,6 +232,8 @@
     onCancel={() => (vaultBeingDeleted = null)}
   />
 {/if}
+
+<UndoStack />
 
 <style>
   .vault-screen {

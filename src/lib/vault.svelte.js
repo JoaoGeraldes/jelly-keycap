@@ -171,9 +171,72 @@ export async function saveItem(item) {
   return savedItem;
 }
 
-export async function deleteItem(itemId) {
-  await api.deleteItem(itemId);
-  session.items = session.items.filter((item) => item.id !== itemId);
+export const UNDO_DELETE_MS = 5000;
+
+/** Deleted items still within their time to undo, oldest first: { item, index, remainingMs, ... }. */
+export const pendingDeletions = $state([]);
+
+/**
+ * Deletes an item, with time to undo. It leaves the list at once but only reaches the server
+ * after UNDO_DELETE_MS. If the app is locked, closed or reloaded first, the item is kept: when in
+ * doubt, nothing is lost. Resolves once deleted or undone (the UI doesn't wait for it; tests do).
+ */
+export function deleteItem(itemId) {
+  const index = session.items.findIndex((item) => item.id === itemId);
+  const [item] = session.items.splice(index, 1);
+  return new Promise((settle) => {
+    pendingDeletions.push({ item, index, remainingMs: UNDO_DELETE_MS, timer: null, settle });
+    startDeletionTimer(pendingDeletions.at(-1));
+  });
+}
+
+/** Puts a deleted item back where it was in the list. */
+export function undoDeletion(itemId) {
+  const pending = takePendingDeletion(itemId);
+  // Its vault may have been deleted meanwhile, which deletes the item on the server too.
+  if (session.vaults.some((vault) => vault.id === pending.item.vaultId)) putBack(pending);
+  pending.settle();
+}
+
+/** Stops every countdown, so there is time to read the undo notes. */
+export function pauseDeletions() {
+  for (const pending of pendingDeletions) {
+    if (pending.timer === null) continue; // already paused
+    clearTimeout(pending.timer);
+    pending.timer = null;
+    pending.remainingMs -= Date.now() - pending.startedAt;
+  }
+}
+
+export function resumeDeletions() {
+  for (const pending of pendingDeletions) if (pending.timer === null) startDeletionTimer(pending);
+}
+
+function startDeletionTimer(pending) {
+  pending.startedAt = Date.now();
+  pending.timer = setTimeout(() => finishDeletion(pending.item.id), pending.remainingMs);
+}
+
+async function finishDeletion(itemId) {
+  const pending = takePendingDeletion(itemId);
+  try {
+    // Locked first (by hand, or by restoring a backup, which replaces the data): keep the item.
+    if (session.isUnlocked) await api.deleteItem(itemId);
+  } catch {
+    putBack(pending); // the server still has it, so it shouldn't stay hidden
+  } finally {
+    pending.settle();
+  }
+}
+
+function takePendingDeletion(itemId) {
+  const [pending] = pendingDeletions.splice(pendingDeletions.findIndex((p) => p.item.id === itemId), 1);
+  clearTimeout(pending.timer);
+  return pending;
+}
+
+function putBack({ item, index }) {
+  session.items.splice(Math.min(index, session.items.length), 0, item);
 }
 
 /** A new random-salted master key, plus the settings the server stores to re-derive and check it. */
