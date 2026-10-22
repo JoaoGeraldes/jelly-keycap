@@ -29,6 +29,8 @@
   --color-danger: #b91c1c; /* red-700, readable on slate-100 */
   --color-solid: #334155; /* filled blocks, like the algorithm steps in "How it works" · slate-700 */
   --color-on-solid: #ffffff;
+  --color-mask: #0f172a; /* the lock screen burglar's mask · slate-900 */
+  --color-mask-eyes: #ffffff;
 
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -63,6 +65,8 @@
   --color-danger: #f85149; /* errorForeground */
   --color-solid: #3c3c3c;
   --color-on-solid: #ffffff;
+  --color-mask: #e5e5e5; /* light, so it stands out on a dark page; the eyes swap to dark */
+  --color-mask-eyes: #1f1f1f;
 
   color-scheme: dark;
 }

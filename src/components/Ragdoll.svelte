@@ -16,14 +16,16 @@
 
   const WIDTH = 240;
   const HEIGHT = 150;
-  const GRAVITY = 0.4;
+  const GRAVITY = 0.1;
   const AIR_FRICTION = 0.99;
   const FLOOR_FRICTION = 0.7;
   const STICK_PASSES = 5; // more passes make the sticks stiffer
-  const HEAD_RADIUS = 9;
-  const WALK_SPEED = 1; // pixels per frame
-  const STRIDE_SPEED = 0.09; // how fast the legs swing
-  const MASK_COLOR = "#1a1a1a"; // a burglar's mask is black in every theme
+  const KICK_STRENGTH = 16; // how hard each keystroke hits
+  const KICK_SLANT = Math.PI / 4; // blows lean up to 45° off straight up or down
+  const BODY_SHARE = 0.45; // how much of the blow the whole body gets, besides the kicked part
+  const HEAD_RADIUS = 10;
+  const WALK_SPEED = 0.09; // pixels per frame
+  const STRIDE_SPEED = 0.02; // how fast the legs swing
 
   // The body standing upright. Only its proportions matter: they set every stick's length.
   const SKELETON = {
@@ -99,14 +101,27 @@
       kick(points[kickOrder[keystrokes % kickOrder.length]]);
   });
 
-  // The whole body hops a little (a kick on one point alone gets soaked up by the rest),
-  // and the kicked part gets a sideways shove too, which makes it tumble.
+  // Low down, the blow comes from below and sends him up; high up, it comes from above and
+  // slams him down. Either way at a random slant, so he flies off to one side or the other.
+  // The kicked part takes all of it and the rest of the body a share (a blow on one point
+  // alone gets soaked up by the rest).
   function kick(kickedPoint) {
     isWalking = false; // the first kick knocks him over for good
-    for (const point of Object.values(points)) point.oldY = point.y + 7; // up, since "old" was below
-    kickedPoint.oldX = kickedPoint.x - (Math.random() - 0.5) * 24;
-    kickedPoint.oldY += 8;
+    const isHigh = average((point) => point.y) < HEIGHT / 2;
+    const slant = (Math.random() * 2 - 1) * KICK_SLANT;
+    const angle = (isHigh ? Math.PI / 2 : -Math.PI / 2) + slant; // canvas y grows downward
+    const blowX = Math.cos(angle) * KICK_STRENGTH;
+    const blowY = Math.sin(angle) * KICK_STRENGTH;
+    for (const point of Object.values(points))
+      push(point, blowX * BODY_SHARE, blowY * BODY_SHARE);
+    push(kickedPoint, blowX * (1 - BODY_SHARE), blowY * (1 - BODY_SHARE)); // on top of its share
     wake();
+  }
+
+  // Verlet keeps no speed, only the last position: moving that back is what sets the speed.
+  function push(point, x, y) {
+    point.oldX -= x;
+    point.oldY -= y;
   }
 
   // Runs frames while he walks, and after a fall until the body has settled, then stops,
@@ -242,6 +257,8 @@
     const style = getComputedStyle(canvas); // read every time, so it follows a theme change
     const bodyColor = style.getPropertyValue("--color-ink-muted");
     const headColor = style.getPropertyValue("--color-accent");
+    const maskColor = style.getPropertyValue("--color-mask"); // each theme sets its own
+    const eyeColor = style.getPropertyValue("--color-mask-eyes");
 
     context.lineCap = "round";
     for (const { from, to, thickness } of sticks) {
@@ -277,23 +294,23 @@
     context.fillStyle = shine;
     context.fill();
 
-    drawMask(context);
+    drawMask(context, maskColor, eyeColor);
   }
 
   // A dark band over the eyes, with eye holes, knotted at the back of the head.
   // It turns with the head, so it stays on while he tumbles.
-  function drawMask(context) {
+  function drawMask(context, maskColor, eyeColor) {
     const { head, neck } = points;
     context.save();
     context.translate(head.x, head.y);
     context.rotate(Math.atan2(head.y - neck.y, head.x - neck.x) + Math.PI / 2); // 0 when upright
     context.scale(walk.direction, 1); // eyes to the front, knot to the back
 
-    context.fillStyle = MASK_COLOR;
+    context.fillStyle = maskColor;
     context.beginPath();
     context.roundRect(-HEAD_RADIUS - 1, -4, HEAD_RADIUS * 2 + 2, 6, 3);
     context.fill();
-    context.strokeStyle = MASK_COLOR;
+    context.strokeStyle = maskColor;
     context.lineWidth = 2;
     context.beginPath();
     context.moveTo(-HEAD_RADIUS, -1);
@@ -303,11 +320,11 @@
     context.stroke();
 
     for (const eyeX of [2, 6.5]) {
-      context.fillStyle = "#ffffff";
+      context.fillStyle = eyeColor;
       context.beginPath();
       context.arc(eyeX, -1, 1.7, 0, Math.PI * 2);
       context.fill();
-      context.fillStyle = MASK_COLOR; // pupils, glancing ahead
+      context.fillStyle = maskColor; // pupils, glancing ahead
       context.beginPath();
       context.arc(eyeX + 0.6, -1, 0.8, 0, Math.PI * 2);
       context.fill();
@@ -318,6 +335,11 @@
   function bone(from, to) {
     const [[fromX, fromY], [toX, toY]] = [SKELETON[from], SKELETON[to]];
     return Math.hypot(toX - fromX, toY - fromY);
+  }
+
+  function average(valueOf) {
+    const all = Object.values(points);
+    return all.reduce((sum, point) => sum + valueOf(point), 0) / all.length;
   }
 
   function distance(a, b) {
