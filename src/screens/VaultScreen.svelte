@@ -4,6 +4,7 @@
 -->
 <script>
   import { textFor } from "../lib/i18n.svelte.js";
+  import About from "../components/About.svelte";
   import DatabaseViewer from "../components/DatabaseViewer.svelte";
   import DeleteVaultDialog from "../components/DeleteVaultDialog.svelte";
   import HowItWorks from "../components/HowItWorks.svelte";
@@ -23,7 +24,7 @@
 
   let selectedVaultId = $state(session.vaults[0]?.id);
   let selectedItem = $state(null); // a saved item, or a new one that isn't saved yet
-  let openPanel = $state(null); // 'settings', 'database', 'how-it-works', or null to show the selected item
+  let openPanel = $state(null); // 'settings', 'about', 'database', 'how-it-works', or null to show the selected item
   let searchText = $state("");
   let isNamingNewVault = $state(false);
   let vaultBeingDeleted = $state(null); // kept here, so the dialog still has it once it leaves the list
@@ -178,6 +179,9 @@
         <button class="button-quiet" onclick={() => showPanel("settings")}
           >{text.settings}</button
         >
+        <button class="button-quiet" onclick={() => showPanel("about")}
+          >{text.about}</button
+        >
         <button class="button-quiet" onclick={() => lock()}>{text.lock}</button>
       </div>
     </div>
@@ -254,6 +258,8 @@
   >
     {#if openPanel === "settings"}
       <Settings onClose={() => showItem(null)} />
+    {:else if openPanel === "about"}
+      <About onClose={() => showItem(null)} />
     {:else if openPanel === "database"}
       <DatabaseViewer onClose={() => showItem(null)} />
     {:else if openPanel === "how-it-works"}

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "description": "A minimal, self-hosted password manager. Svelte UI, SQLite storage, encryption in the browser.",
+  "license": "MIT",
   "main": "desktop/main.js",
   "engines": {
     "node": ">=22.13"

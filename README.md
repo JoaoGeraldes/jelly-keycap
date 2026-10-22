@@ -21,6 +21,7 @@ dependency in the browser (Argon2).
 - [Tests](#tests)
 - [Project layout](#project-layout)
 - [Not built yet](#not-built-yet)
+- [License](#license)
 
 ## Quick start
 
@@ -334,6 +335,7 @@ src/
   components/
     ItemEditor.svelte   View and edit one login
     Settings.svelte              Settings: the master password and language cards
+    About.svelte                 About: the motto, who made it, the source code and how to contribute
     ChangeMasterPassword.svelte  The "Master password" card in Settings
     DisplaySettings.svelte       A− / A+ and the theme switch in the top bar
     CapsLockWarning.svelte       "Caps Lock is on" under every master password field
@@ -364,3 +366,9 @@ Each of these fits the current design without changing it:
 - **Comfort features:** auto-lock after inactivity, clearing the clipboard after copying, a trash for deleted entries.
 - **A CLI** that reads the same file, for scripts and environment variables.
 - **Schema migrations**, using SQLite's `PRAGMA user_version` once the schema first changes.
+
+## License
+
+[MIT](LICENSE) © 2026 João Geraldes. Contributions are welcome: open an
+[issue](https://github.com/JoaoGeraldes/password-manager-2026/issues) or a pull request. Security problems:
+please [report them privately](https://github.com/JoaoGeraldes/password-manager-2026/security/advisories/new).

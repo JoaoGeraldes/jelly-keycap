@@ -9,6 +9,7 @@ export default {
   howItWorks: 'Como funciona',
   viewDatabase: 'Ver base de dados',
   settings: 'Definições',
+  about: 'Sobre',
   lock: 'Bloquear',
   logins: 'Entradas',
   newEntry: 'Nova entrada',

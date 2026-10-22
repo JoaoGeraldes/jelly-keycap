@@ -9,6 +9,7 @@ export default {
   howItWorks: 'How it works',
   viewDatabase: 'View database',
   settings: 'Settings',
+  about: 'About',
   lock: 'Lock',
   logins: 'Logins',
   newEntry: 'New entry',
