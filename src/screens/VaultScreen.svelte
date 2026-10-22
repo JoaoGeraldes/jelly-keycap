@@ -388,14 +388,35 @@
   /* Clone sits outside the row's highlight, outlined and a gap apart, so it reads as its own action. */
   .item {
     display: flex;
-    align-items: center;
+    align-items: stretch; /* Clone is as tall as the entry beside it */
     gap: 0.5rem;
   }
 
+  /* Clone shows only on the entry being pointed at, keeping the list calm. Hidden by opacity, so
+     its space stays and names don't shift. Keyboard focus shows it too, and touch screens, which
+     can't point, always show it. */
   .clone {
     flex: none;
-    padding: 0.3rem 0.6rem;
+    padding: 0 0.6rem;
     font-size: 0.85rem;
+    opacity: 0;
+  }
+
+  .item:hover .clone,
+  .item:focus-within .clone {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .clone {
+      opacity: 1;
+    }
+  }
+
+  /* While Clone is pointed at or focused, a dashed outline shows which entry it will copy. */
+  .item:has(.clone:hover, .clone:focus-visible) .item-row {
+    outline: 1px dashed var(--color-accent);
+    outline-offset: -1px;
   }
 
   .vault-button span:first-child {
