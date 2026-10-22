@@ -12,7 +12,7 @@
     unlock,
   } from '../lib/vault.svelte.js';
   import CapsLockWarning from '../components/CapsLockWarning.svelte';
-  import Ragdoll from '../components/Ragdoll.svelte';
+  import JellyKeycap from '../components/JellyKeycap.svelte';
 
   const text = textFor('LockScreen');
 
@@ -21,7 +21,7 @@
   let passwordAgain = $state('');
   let errorMessage = $state('');
   let isWorking = $state(false);
-  let keystrokes = $state(0); // only counted, to knock over and kick the burglar
+  let keystrokes = $state(0); // only counted, to squash the jelly keycap
 
   hasMasterPassword()
     .then((hasOne) => (isFirstRun = !hasOne))
@@ -45,7 +45,7 @@
 </script>
 
 <main class="lock-screen">
-  <Ragdoll {keystrokes} />
+  <JellyKeycap {keystrokes} />
 
   {#if isFirstRun !== null}
     <form onsubmit={submit}>
