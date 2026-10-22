@@ -40,8 +40,10 @@
     background: var(--color-sidebar);
   }
 
+  /* An odd height on purpose: the bar has 39px inside its border, so 23px centres on a whole
+     pixel. Off by half a pixel, the curves get smeared and look jagged on normal screens. */
   .logo {
-    height: 22px;
+    height: 23px;
     padding-left: 4px;
   }
 </style>

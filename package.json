@@ -32,11 +32,15 @@
       "dist/**",
       "server/**",
       "desktop/**",
-      "src/media/logo-symbol.png"
+      "src/media/logo-symbol.png",
+      "src/media/logo-symbol.ico"
     ],
     "directories": {
       "output": "release"
     },
-    "icon": "src/media/logo-symbol.png"
+    "icon": "src/media/logo-symbol.png",
+    "win": {
+      "icon": "src/media/logo-symbol.ico"
+    }
   }
 }

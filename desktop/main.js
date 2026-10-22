@@ -11,7 +11,9 @@ import { fileURLToPath } from 'node:url';
 import { createVaultServer } from '../server/server.js';
 
 const UI_FOLDER = new URL('../dist/', import.meta.url);
-const ICON = new URL('../src/media/logo-symbol.png', import.meta.url); // the window's and taskbar's icon
+// The window's and taskbar's icon. Windows gets the .ico, which holds a hand-made 16px version
+// for the title bar and larger ones for the taskbar; Linux needs a PNG; macOS uses the app's own.
+const ICON = new URL(`../src/media/logo-symbol.${process.platform === 'win32' ? 'ico' : 'png'}`, import.meta.url);
 
 // A second copy would run a second server on the same file, so it focuses the first one instead.
 if (!app.requestSingleInstanceLock()) {
