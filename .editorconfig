@@ -1,0 +1,14 @@
+# The basics for any editor, even without Prettier. prettier.config.js has the full style.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Two spaces at the end of a Markdown line are a line break.
+[*.md]
+trim_trailing_whitespace = false

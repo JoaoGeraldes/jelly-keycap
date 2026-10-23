@@ -1,4 +1,4 @@
--- Vault database schema.
+-- Jelly Keycap database schema.
 --
 -- Everything secret in this file is ciphertext produced in the browser
 -- (see src/lib/crypto.js). Encrypted values are stored as base64 text in

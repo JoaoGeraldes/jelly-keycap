@@ -1,0 +1,10 @@
+# Built, installed or generated: never edited by hand.
+node_modules/
+dist/
+release/
+package-lock.json
+# Your vault and its safety copies.
+*.sqlite
+*.sqlite-journal
+# Artwork source files.
+design/

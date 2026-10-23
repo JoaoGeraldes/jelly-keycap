@@ -1,6 +1,6 @@
 <img src="src/media/logo-symbol.svg" alt="" width="72" />
 
-# Vault
+# Jelly Keycap
 
 A minimal, self-hosted password manager. One Node process, one SQLite file, a Svelte UI, and
 encryption that happens entirely in your browser.
@@ -21,6 +21,7 @@ dependency in the browser (Argon2).
 - [Tests](#tests)
 - [Project layout](#project-layout)
 - [Landing page](#landing-page)
+- [Code style](#code-style)
 - [Not built yet](#not-built-yet)
 - [License](#license)
 
@@ -45,10 +46,10 @@ in the folder you started from.
 
 ## Desktop app
 
-For everyday use there is nothing to set up: install Vault and open it like any other app. It
+For everyday use there is nothing to set up: install Jelly Keycap and open it like any other app. It
 opens in its own window and runs everything it needs by itself, with no server to start and no
 browser to open. Your vault is kept in the app's own folder (on Windows,
-`%APPDATA%\Vault\vault.sqlite`), and **View database** shows the exact path.
+`%APPDATA%\Jelly Keycap\vault.sqlite`), and **View database** shows the exact path.
 
 For developers, the desktop app is a thin shell around the same code. All of it is in
 [`desktop/main.js`](desktop/main.js): it starts `server/server.js` on a free port that only this
@@ -364,6 +365,18 @@ set **Source** to **GitHub Actions**.
 
 Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop
 installers, from `npm run package`) and `node_modules/`.
+
+## Code style
+
+One style for every file, set in [`prettier.config.js`](prettier.config.js): 2 spaces, single
+quotes, semicolons, trailing commas and lines up to 120 columns. `.editorconfig` gives the basics
+to any editor, and in VS Code, `.vscode/` formats on save with the Prettier extension (suggested
+when you open the folder).
+
+```sh
+npm run format         # format every file
+npm run format:check   # list files that don't match, without changing them
+```
 
 ## Not built yet
 
