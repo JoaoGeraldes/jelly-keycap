@@ -1,0 +1,912 @@
+<!doctype html>
+<!--
+  The project's landing page, published to GitHub Pages by .github/workflows/pages.yml.
+  One file on purpose: no build step, no JavaScript, and the same colors and font as the app
+  (see src/app.css). Open it straight from the folder to preview it.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <!-- Nothing here runs scripts or loads anything from elsewhere, so the policy can be this strict. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+    />
+    <title>Jelly Keycap · a minimal, self-hosted password manager</title>
+    <meta
+      name="description"
+      content="A minimal, self-hosted password manager. One SQLite file, encryption in your browser, no accounts, no cloud, no telemetry. Free and open source."
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230078d4'%3E%3Cpath d='M16.07,3.18a3.75,3.75,0,0,1,3.41,2.61c.95,2.53,1.86,5.07,2.78,7.61a1.67,1.67,0,0,1-.25,2,2,2,0,0,1-2.3.37,6.63,6.63,0,0,1-1.13-.7A3.32,3.32,0,0,0,14.31,15c-.33.23-.65.48-1,.7a2.84,2.84,0,0,1-3.43,0c-.35-.23-.68-.5-1-.75a3.22,3.22,0,0,0-3.8-.18c-.38.22-.71.52-1.1.74A3.72,3.72,0,0,1,2.89,16a1.06,1.06,0,0,1-1.23-1.56c1-2.54,2.12-5.06,3.18-7.59a11,11,0,0,1,.54-1.22A4.72,4.72,0,0,1,9.61,3.09c1,0,1.83,0,2.82,0M10.34,4.62a1.61,1.61,0,0,0-.69-.06,3.76,3.76,0,0,0-3.09,2.5C6,8.52,5.37,10,4.78,11.46c-.18.43-.43,1,.14,1.21s.81-.27,1-.67a1,1,0,0,0,.11-.23c.5-1.09,1-2.18,1.51-3.28a4.7,4.7,0,0,1,2.69-2.61c.4-.16,1.08-.22.9-.82C11.12,4.85,10.71,4.75,10.34,4.62Z'/%3E%3Cpath d='M19.47,20.37a8.77,8.77,0,0,1-1.54-.63c-1.72-1-2.45-1-4.1.16a4,4,0,0,1-5.43-.09C7,18.73,6.06,18.7,4.53,19.68c-1.33.86-2.49.81-3.37-.19a2.4,2.4,0,0,1-.53-1c-.15-.65.25-1.08.9-.91a3.15,3.15,0,0,0,2.92-.77,2.9,2.9,0,0,1,4.09.05l.45.34a3.42,3.42,0,0,0,4.29.09c.45-.3.89-.64,1.37-.91a2.68,2.68,0,0,1,2.88.06c.38.23.74.49,1.11.73a2.76,2.76,0,0,0,2.94.13,1.89,1.89,0,0,1,.69-.3c.35,0,.82.07,1,.3a1.08,1.08,0,0,1,0,1A4.61,4.61,0,0,1,19.47,20.37Z'/%3E%3C/svg%3E"
+    />
+    <style>
+      /* The app's font. The first file is the published copy (the workflow puts it next to this
+         page); the second is the one in the repository, so a local preview looks the same. */
+      @font-face {
+        font-family: "Atkinson Hyperlegible Mono";
+        src:
+          url("fonts/AtkinsonHyperlegibleMono-VariableFont_wght.ttf")
+            format("truetype"),
+          url("../src/fonts/AtkinsonHyperlegibleMono-VariableFont_wght.ttf")
+            format("truetype");
+        font-weight: 200 800;
+        font-display: swap;
+      }
+
+      /* The app's light theme (Tailwind slate), and its dark one (VS Code Dark Modern) below. */
+      :root {
+        --color-background: #f8fafc;
+        --color-sidebar: #f1f5f9;
+        --color-surface: #f1f5f9;
+        --color-control: #ffffff;
+        --color-control-border: #cbd5e1;
+        --color-ink: #1e293b;
+        --color-ink-muted: #475569;
+        --color-line: #e2e8f0;
+        --color-accent: #0078d4;
+        --color-accent-hover: #0067b8;
+        --color-on-accent: #ffffff;
+        --color-link: #005fb8;
+        --color-hover: #e2e8f0;
+        --color-code: #f1f5f9;
+        --color-cipher: #64748b;
+        --font:
+          "Atkinson Hyperlegible Mono", ui-monospace, "SF Mono", Menlo,
+          Consolas, monospace;
+        --radius: 2px;
+        --page-width: 68rem;
+        --noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        color-scheme: light;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-background: #1f1f1f;
+          --color-sidebar: #181818;
+          --color-surface: #181818;
+          --color-control: #313131;
+          --color-control-border: #3c3c3c;
+          --color-ink: #cccccc;
+          --color-ink-muted: #9d9d9d;
+          --color-line: #2b2b2b;
+          --color-accent-hover: #026ec1;
+          --color-link: #4daafc;
+          --color-hover: #2a2d2e;
+          --color-code: #141414;
+          --color-cipher: #8b8b8b;
+          color-scheme: dark;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--color-background);
+        color: var(--color-ink);
+        font: 15px / 1.6 var(--font);
+        -webkit-text-size-adjust: 100%;
+      }
+
+      /* The same faint grain as the app. */
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 10;
+        pointer-events: none;
+        background: var(--noise-texture) repeat;
+        background-size: 150px;
+        opacity: 0.04;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      a {
+        color: var(--color-link);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+
+      code,
+      pre {
+        font-family: inherit;
+      }
+
+      .page {
+        width: min(100% - 32px, var(--page-width));
+        margin-inline: auto;
+      }
+
+      /* Top bar: like the app's, a slim strip a shade apart from the page. */
+      .top-bar {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        border-bottom: 1px solid var(--color-line);
+        background: var(--color-sidebar);
+      }
+
+      .top-bar .page {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        height: 48px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: inherit;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .logo {
+        fill: var(--color-accent);
+      }
+
+      .brand .logo {
+        width: 24px;
+        height: 24px;
+      }
+
+      .top-bar nav {
+        display: flex;
+        gap: 4px;
+      }
+
+      .top-bar nav a {
+        padding: 6px 10px;
+        border-radius: var(--radius);
+        color: var(--color-ink-muted);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      .top-bar nav a:hover {
+        background: var(--color-hover);
+        color: var(--color-ink);
+      }
+
+      /* On a phone only GitHub stays in the bar; the sections are a short scroll away. */
+      @media (max-width: 640px) {
+        .top-bar nav a:not(:last-child) {
+          display: none;
+        }
+      }
+
+      /* Buttons, as in the app: filled for the main action, outlined for the rest. */
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border: 1px solid var(--color-control-border);
+        border-radius: var(--radius);
+        background: var(--color-control);
+        color: var(--color-ink);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .button:hover {
+        border-color: var(--color-ink-muted);
+      }
+
+      .button-primary {
+        border-color: var(--color-accent);
+        background: var(--color-accent);
+        color: var(--color-on-accent);
+      }
+
+      .button-primary:hover {
+        border-color: var(--color-accent-hover);
+        background: var(--color-accent-hover);
+      }
+
+      .button svg {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+      }
+
+      /* Hero */
+      .hero {
+        display: grid;
+        justify-items: center;
+        gap: 20px;
+        padding: 88px 0 72px;
+        text-align: center;
+      }
+
+      .hero .logo {
+        width: 96px;
+        height: 96px;
+        margin-bottom: 4px;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.2rem, 7vw, 3.6rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+      }
+
+      .motto {
+        font-size: clamp(1.05rem, 3vw, 1.3rem);
+        font-weight: 600;
+      }
+
+      .lead {
+        max-width: 40rem;
+        color: var(--color-ink-muted);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .facts {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px 18px;
+        margin: 8px 0 0;
+        padding: 0;
+        list-style: none;
+        color: var(--color-ink-muted);
+        font-size: 13px;
+      }
+
+      .facts li::before {
+        content: "· ";
+        color: var(--color-accent);
+      }
+
+      /* Sections */
+      section {
+        padding: 72px 0;
+        border-top: 1px solid var(--color-line);
+      }
+
+      .section-heading {
+        display: grid;
+        gap: 10px;
+        max-width: 44rem;
+        margin-bottom: 36px;
+      }
+
+      .eyebrow {
+        color: var(--color-accent);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .section-heading h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        line-height: 1.2;
+      }
+
+      .section-heading p {
+        color: var(--color-ink-muted);
+      }
+
+      .card {
+        padding: 24px;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius);
+        background: var(--color-surface);
+      }
+
+      /* What you type, next to what is stored */
+      .compare {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .compare .card {
+        display: grid;
+        align-content: start;
+        gap: 14px;
+        height: 100%;
+      }
+
+      .card-label {
+        color: var(--color-ink-muted);
+        font-size: 13px;
+      }
+
+      .fields {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 8px 16px;
+        margin: 0;
+      }
+
+      .fields dt {
+        color: var(--color-ink-muted);
+      }
+
+      .fields dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .stored {
+        margin: 0;
+        padding: 14px;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius);
+        background: var(--color-code);
+        font-size: 13px;
+        line-height: 1.7;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      .stored .key {
+        color: var(--color-ink-muted);
+      }
+
+      .stored .cipher {
+        color: var(--color-cipher);
+      }
+
+      .arrow {
+        color: var(--color-accent);
+        font-size: 28px;
+        text-align: center;
+      }
+
+      .caption {
+        margin-top: 20px;
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 760px) {
+        .compare {
+          grid-template-columns: 1fr;
+        }
+
+        .arrow {
+          transform: rotate(90deg);
+        }
+      }
+
+      /* The key chain: master password to logins */
+      .chain {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 28px;
+        padding: 0;
+        list-style: none;
+      }
+
+      .chain li {
+        display: contents;
+      }
+
+      .step {
+        display: grid;
+        gap: 2px;
+        padding: 12px 16px;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius);
+        background: var(--color-surface);
+      }
+
+      .step strong {
+        font-size: 15px;
+      }
+
+      .step span {
+        color: var(--color-ink-muted);
+        font-size: 12px;
+      }
+
+      .link {
+        color: var(--color-ink-muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .link::after {
+        content: " →";
+        color: var(--color-accent);
+      }
+
+      .points {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: 16px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .points li {
+        padding-left: 14px;
+        border-left: 2px solid var(--color-accent);
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
+      .points strong {
+        display: block;
+        color: var(--color-ink);
+      }
+
+      /* Features */
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+        gap: 16px;
+      }
+
+      .features .card {
+        display: grid;
+        align-content: start;
+        gap: 8px;
+      }
+
+      .features h3 {
+        font-size: 16px;
+      }
+
+      .features p {
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
+      /* Specs, like the app's About panel */
+      .specs {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 10px 28px;
+        max-width: 40rem;
+        margin: 36px 0 0;
+      }
+
+      .specs dt {
+        color: var(--color-ink-muted);
+      }
+
+      .specs dd {
+        margin: 0;
+      }
+
+      /* Get started */
+      .start {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+        gap: 16px;
+      }
+
+      .start .card {
+        display: grid;
+        align-content: start;
+        gap: 12px;
+      }
+
+      .start h3 {
+        font-size: 16px;
+      }
+
+      .start p {
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
+      .terminal {
+        margin: 0;
+        padding: 14px 16px;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius);
+        background: var(--color-code);
+        font-size: 13px;
+        line-height: 1.8;
+        overflow-x: auto;
+      }
+
+      .terminal .comment {
+        color: var(--color-ink-muted);
+      }
+
+      .terminal .prompt {
+        color: var(--color-accent);
+        user-select: none;
+      }
+
+      .note {
+        margin-top: 20px;
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
+      /* Contribute */
+      .contribute {
+        display: grid;
+        justify-items: start;
+        gap: 18px;
+      }
+
+      .contribute .actions {
+        justify-content: flex-start;
+        margin: 0;
+      }
+
+      footer {
+        padding: 32px 0 48px;
+        border-top: 1px solid var(--color-line);
+        color: var(--color-ink-muted);
+        font-size: 13px;
+      }
+
+      footer .page {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 8px 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="logo" viewBox="0 0 24 24">
+        <path
+          d="M16.07,3.18a3.75,3.75,0,0,1,3.41,2.61c.95,2.53,1.86,5.07,2.78,7.61a1.67,1.67,0,0,1-.25,2,2,2,0,0,1-2.3.37,6.63,6.63,0,0,1-1.13-.7A3.32,3.32,0,0,0,14.31,15c-.33.23-.65.48-1,.7a2.84,2.84,0,0,1-3.43,0c-.35-.23-.68-.5-1-.75a3.22,3.22,0,0,0-3.8-.18c-.38.22-.71.52-1.1.74A3.72,3.72,0,0,1,2.89,16a1.06,1.06,0,0,1-1.23-1.56c1-2.54,2.12-5.06,3.18-7.59a11,11,0,0,1,.54-1.22A4.72,4.72,0,0,1,9.61,3.09c1,0,1.83,0,2.82,0M10.34,4.62a1.61,1.61,0,0,0-.69-.06,3.76,3.76,0,0,0-3.09,2.5C6,8.52,5.37,10,4.78,11.46c-.18.43-.43,1,.14,1.21s.81-.27,1-.67a1,1,0,0,0,.11-.23c.5-1.09,1-2.18,1.51-3.28a4.7,4.7,0,0,1,2.69-2.61c.4-.16,1.08-.22.9-.82C11.12,4.85,10.71,4.75,10.34,4.62Z"
+        />
+        <path
+          d="M19.47,20.37a8.77,8.77,0,0,1-1.54-.63c-1.72-1-2.45-1-4.1.16a4,4,0,0,1-5.43-.09C7,18.73,6.06,18.7,4.53,19.68c-1.33.86-2.49.81-3.37-.19a2.4,2.4,0,0,1-.53-1c-.15-.65.25-1.08.9-.91a3.15,3.15,0,0,0,2.92-.77,2.9,2.9,0,0,1,4.09.05l.45.34a3.42,3.42,0,0,0,4.29.09c.45-.3.89-.64,1.37-.91a2.68,2.68,0,0,1,2.88.06c.38.23.74.49,1.11.73a2.76,2.76,0,0,0,2.94.13,1.89,1.89,0,0,1,.69-.3c.35,0,.82.07,1,.3a1.08,1.08,0,0,1,0,1A4.61,4.61,0,0,1,19.47,20.37Z"
+        />
+      </symbol>
+      <symbol id="github" viewBox="0 0 16 16">
+        <path
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+        />
+      </symbol>
+    </svg>
+
+    <header class="top-bar">
+      <div class="page">
+        <a class="brand" href="#top">
+          <svg class="logo" aria-hidden="true"><use href="#logo" /></svg>
+          Jelly Keycap
+        </a>
+        <nav aria-label="Sections">
+          <a href="#how-it-works">How it works</a>
+          <a href="#features">Features</a>
+          <a href="#get-started">Get started</a>
+          <a href="https://github.com/JoaoGeraldes/jelly-keycap">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <div class="page hero">
+        <svg class="logo" aria-hidden="true"><use href="#logo" /></svg>
+        <h1>Jelly Keycap</h1>
+        <p class="motto">Zero knowledge. One file. Your keys.</p>
+        <p class="lead">
+          A minimal, self-hosted password manager. Your secrets live in one file
+          on your own computer, and are encrypted in your browser before they
+          are ever saved.
+        </p>
+        <div class="actions">
+          <a
+            class="button button-primary"
+            href="https://github.com/JoaoGeraldes/jelly-keycap"
+          >
+            <svg aria-hidden="true"><use href="#github" /></svg>
+            View on GitHub
+          </a>
+          <a class="button" href="#get-started">Get started</a>
+        </div>
+        <ul class="facts">
+          <li>Free and open source (MIT)</li>
+          <li>No accounts, no cloud, no telemetry</li>
+          <li>Windows, macOS, Linux</li>
+        </ul>
+      </div>
+
+      <section id="how-it-works">
+        <div class="page">
+          <div class="section-heading">
+            <p class="eyebrow">How it works</p>
+            <h2>The server never sees your secrets</h2>
+            <p>
+              Everything is encrypted in your browser with keys that exist only
+              in memory. The server, and the database file it writes to, only
+              ever hold ciphertext.
+            </p>
+          </div>
+
+          <div class="compare">
+            <div class="card">
+              <p class="card-label">What you see, once unlocked</p>
+              <dl class="fields">
+                <dt>title</dt>
+                <dd>GitHub</dd>
+                <dt>username</dt>
+                <dd>octocat</dd>
+                <dt>password</dt>
+                <dd>••••••••••••••••</dd>
+                <dt>website</dt>
+                <dd>github.com</dd>
+              </dl>
+            </div>
+            <div class="arrow" aria-hidden="true">→</div>
+            <div class="card">
+              <p class="card-label">What is stored in vault.sqlite</p>
+              <pre class="stored"><span class="key">id        </span> 6f1c…e2a9
+<span class="key">type      </span> login
+<span class="key">data_enc  </span> <span class="cipher">GQ7IxtWHG8VTAnmfZLT32s7rBOU6RsXy0pux34hdXWIzIsp8xPos93OfOPKgoUMK6COYZwVzAzoN+407asMFqWFvumHTWncU3bGcHQTlRE3GcfcwxeZeMj99f8pJsAM+4dfO91M/Z7kgyWb4qgQ…</span></pre>
+            </div>
+          </div>
+          <p class="caption">
+            Every field, the title included, goes into one encrypted blob. A
+            copy of the database, or a compromised server, reveals nothing
+            without your master password.
+          </p>
+
+          <div class="section-heading" style="margin-top: 64px">
+            <h2>One password, a chain of keys</h2>
+          </div>
+          <ol class="chain" aria-label="From master password to logins">
+            <li>
+              <div class="step">
+                <strong>Master password</strong><span>only in your head</span>
+              </div>
+              <span class="link">Argon2id</span>
+            </li>
+            <li>
+              <div class="step">
+                <strong>Master key</strong><span>only in memory</span>
+              </div>
+              <span class="link">unwraps</span>
+            </li>
+            <li>
+              <div class="step">
+                <strong>Vault keys</strong
+                ><span>one per vault, stored wrapped</span>
+              </div>
+              <span class="link">AES-256-GCM</span>
+            </li>
+            <li>
+              <div class="step">
+                <strong>Your logins</strong><span>decrypted on screen</span>
+              </div>
+            </li>
+          </ol>
+          <ul class="points">
+            <li>
+              <strong>Slow to guess</strong>
+              The master key comes from Argon2id with 64 MiB of memory and 3
+              passes, as OWASP recommends.
+            </li>
+            <li>
+              <strong>Cheap to change</strong>
+              A new master password re-wraps the vault keys in one transaction.
+              Your logins aren't touched.
+            </li>
+            <li>
+              <strong>Tamper-evident</strong>
+              Each value is bound to its row, so ciphertext copied onto another
+              row fails to decrypt.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="page">
+          <div class="section-heading">
+            <p class="eyebrow">Features</p>
+            <h2>Small on purpose</h2>
+            <p>
+              The less code there is, the less there is to go wrong. Still, it's
+              the whole thing:
+            </p>
+          </div>
+
+          <div class="features">
+            <div class="card">
+              <h3>Vaults and logins</h3>
+              <p>
+                Separate vaults for personal and work, search, clone a login,
+                and undo a delete.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Password generator</h3>
+              <p>
+                Strong random passwords from the browser's own cryptographic
+                randomness.
+              </p>
+            </div>
+            <div class="card">
+              <h3>One file to back up</h3>
+              <p>
+                Download a backup, restore it later. A restore always keeps a
+                safety copy of your current vault first.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Desktop app</h3>
+              <p>
+                Install it and open it like any other app. No server to start,
+                no browser to open.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Auto-lock</h3>
+              <p>
+                Locks itself after a while without activity, with a countdown
+                you can change.
+              </p>
+            </div>
+            <div class="card">
+              <h3>See for yourself</h3>
+              <p>
+                A built-in database viewer shows every value exactly as stored,
+                and diagrams explain each algorithm.
+              </p>
+            </div>
+            <div class="card">
+              <h3>English and Portuguese</h3>
+              <p>
+                Every screen is translated, and adding a language is one folder
+                of text files.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Easy on the eyes</h3>
+              <p>
+                Light and dark themes, adjustable text size, and a typeface made
+                for low vision: 0 and O never look alike.
+              </p>
+            </div>
+          </div>
+
+          <dl class="specs">
+            <dt>encryption</dt>
+            <dd>AES-256-GCM, in your browser</dd>
+            <dt>master key</dt>
+            <dd>Argon2id · 64 MiB · 3 passes</dd>
+            <dt>storage</dt>
+            <dd>SQLite, one file you can copy</dd>
+            <dt>server</dt>
+            <dd>Node.js, zero dependencies</dd>
+            <dt>interface</dt>
+            <dd>Svelte</dd>
+            <dt>telemetry</dt>
+            <dd>none</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section id="get-started">
+        <div class="page">
+          <div class="section-heading">
+            <p class="eyebrow">Get started</p>
+            <h2>Running in a minute</h2>
+            <p>
+              Needs Node.js 22.13 or newer, which comes with SQLite built in.
+            </p>
+          </div>
+
+          <div class="start">
+            <div class="card">
+              <h3>In your browser</h3>
+              <p>Serves the app and its API on this computer only.</p>
+              <pre
+                class="terminal"
+              ><span class="prompt">$ </span>git clone https://github.com/JoaoGeraldes/jelly-keycap
+<span class="prompt">$ </span>cd jelly-keycap
+<span class="prompt">$ </span>npm install
+<span class="prompt">$ </span>npm run build
+<span class="prompt">$ </span>npm start   <span class="comment"># http://127.0.0.1:3000</span></pre>
+            </div>
+            <div class="card">
+              <h3>As a desktop app</h3>
+              <p>
+                Opens in its own window, or builds an installer for your system.
+              </p>
+              <pre class="terminal"><span class="prompt">$ </span>npm install
+<span class="prompt">$ </span>npm run desktop   <span class="comment"># open the app</span>
+<span class="prompt">$ </span>npm run package   <span class="comment"># build an installer</span></pre>
+            </div>
+          </div>
+          <p class="note">
+            Your master password can't be recovered, by design. Before putting
+            it on a network, read the
+            <a
+              href="https://github.com/JoaoGeraldes/jelly-keycap#security-notes"
+              >security notes</a
+            >.
+          </p>
+        </div>
+      </section>
+
+      <section id="contribute">
+        <div class="page contribute">
+          <div class="section-heading" style="margin: 0">
+            <p class="eyebrow">Contribute</p>
+            <h2>Don't trust, verify</h2>
+            <p>
+              Every line that touches your secrets is there to read.
+              Contributions are welcome, big or small: open an issue, suggest an
+              idea or send a fix. Typos count too.
+            </p>
+          </div>
+          <div class="actions">
+            <a
+              class="button button-primary"
+              href="https://github.com/JoaoGeraldes/jelly-keycap"
+            >
+              <svg aria-hidden="true"><use href="#github" /></svg>
+              Read the code
+            </a>
+            <a
+              class="button"
+              href="https://github.com/JoaoGeraldes/jelly-keycap/issues"
+              >Open an issue</a
+            >
+            <a
+              class="button"
+              href="https://github.com/JoaoGeraldes/jelly-keycap/pulls"
+              >Send a pull request</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="page">
+        <span>
+          Made by <a href="https://github.com/JoaoGeraldes">João Geraldes</a>,
+          with help from AI coding tools. Every change is reviewed and tested.
+        </span>
+        <span>
+          <a
+            href="https://github.com/JoaoGeraldes/jelly-keycap/blob/main/LICENSE"
+            >MIT License</a
+          >
+        </span>
+      </div>
+    </footer>
+  </body>
+</html>

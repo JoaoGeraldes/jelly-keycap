@@ -6,7 +6,7 @@
   let { onClose } = $props();
 
   const text = textFor("About");
-  const REPOSITORY = "https://github.com/JoaoGeraldes/password-manager-2026";
+  const REPOSITORY = "https://github.com/JoaoGeraldes/jelly-keycap";
 
   // Every address the texts link to, by the name they use for it.
   const LINKS = {

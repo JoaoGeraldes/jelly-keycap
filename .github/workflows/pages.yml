@@ -1,0 +1,39 @@
+# Publishes the landing page (site/index.html) to GitHub Pages whenever it changes on main.
+# One-time setup: in the repository, Settings → Pages → Source: "GitHub Actions".
+name: Landing page
+
+on:
+  push:
+    branches: [main]
+    paths: [site/**, src/fonts/**, .github/workflows/pages.yml]
+  workflow_dispatch: # lets it be run by hand from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A newer push replaces a publish still in progress.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      # The page uses the app's font; a copy goes next to it rather than keeping a second one in site/.
+      - name: Put the page and its font together
+        run: |
+          mkdir -p _site/fonts
+          cp site/index.html _site/
+          cp src/fonts/*.ttf _site/fonts/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

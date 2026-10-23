@@ -20,6 +20,7 @@ dependency in the browser (Argon2).
 - [Translations](#translations)
 - [Tests](#tests)
 - [Project layout](#project-layout)
+- [Landing page](#landing-page)
 - [Not built yet](#not-built-yet)
 - [License](#license)
 
@@ -80,12 +81,12 @@ It also keeps the backend tiny: almost every route is a single SQL statement.
 
 The browser code has three layers, each of which only talks to the one below it:
 
-| File | Knows about | Job |
-| --- | --- | --- |
-| `src/screens/*`, `src/components/*` | plain objects | Show things and react to clicks |
-| `src/lib/vault.svelte.js` | keys, the API | Encrypt on the way out, decrypt on the way in, hold the session |
-| `src/lib/crypto.js` | bytes | Argon2id, AES-GCM, base64, password generator |
-| `src/lib/api.js` | HTTP | One function per server route |
+| File                                | Knows about   | Job                                                             |
+| ----------------------------------- | ------------- | --------------------------------------------------------------- |
+| `src/screens/*`, `src/components/*` | plain objects | Show things and react to clicks                                 |
+| `src/lib/vault.svelte.js`           | keys, the API | Encrypt on the way out, decrypt on the way in, hold the session |
+| `src/lib/crypto.js`                 | bytes         | Argon2id, AES-GCM, base64, password generator                   |
+| `src/lib/api.js`                    | HTTP          | One function per server route                                   |
 
 ## Encryption
 
@@ -147,12 +148,12 @@ The full schema with comments is in [`server/schema.sql`](server/schema.sql). It
 every start (`CREATE TABLE IF NOT EXISTS`), so a new install needs no setup step, and an existing
 database gets any newly added table the next time the app starts.
 
-| Table | One row per | Plaintext columns | Encrypted columns |
-| --- | --- | --- | --- |
-| `key_derivation` | installation (always exactly one) | `kdf_params`, `salt`, `created_at` | `verifier` |
-| `vaults` | vault | `id`, timestamps | `wrapped_key`, `name_enc` |
-| `items` | saved login | `id`, `vault_id`, `type`, timestamps | `data_enc` |
-| `user_settings` | installation (always exactly one) | `theme`, `text_scale`, `language`, `auto_lock_minutes` | none |
+| Table            | One row per                       | Plaintext columns                                      | Encrypted columns         |
+| ---------------- | --------------------------------- | ------------------------------------------------------ | ------------------------- |
+| `key_derivation` | installation (always exactly one) | `kdf_params`, `salt`, `created_at`                     | `verifier`                |
+| `vaults`         | vault                             | `id`, timestamps                                       | `wrapped_key`, `name_enc` |
+| `items`          | saved login                       | `id`, `vault_id`, `type`, timestamps                   | `data_enc`                |
+| `user_settings`  | installation (always exactly one) | `theme`, `text_scale`, `language`, `auto_lock_minutes` | none                      |
 
 `user_settings` is plain text on purpose: none of it is secret, and the lock screen needs the
 language before anything can be decrypted. A column left `NULL` means "not chosen yet", and the
@@ -179,22 +180,22 @@ in which vault, item types, and when things were created or changed. Nothing els
 Implemented in [`server/api.js`](server/api.js). It's JSON in and out. Errors come back as
 `{ "error": "message" }` with status 400, 404, or 409 (made with an outdated master key).
 
-| Method and path | Body | Returns |
-| --- | --- | --- |
-| `GET /api/key-derivation` | | `{ kdfParams, salt, verifier }`, or `null` before first setup |
-| `POST /api/key-derivation` | `{ kdfParams, salt, verifier }` | `null`; fails if already set up |
-| `POST /api/change-master-password` | `{ masterKeySalt, newKeyDerivation: { kdfParams, salt, verifier }, rewrappedVaultKeys: { [vaultId]: wrappedKey } }` | `null`; all or nothing |
-| `GET /api/vaults` | | `[{ id, wrappedKey, nameEnc }]` |
-| `PUT /api/vaults/:id` | `{ masterKeySalt, wrappedKey, nameEnc }` | `null`; creates or updates |
-| `DELETE /api/vaults/:id` | | `null`; also deletes the vault's items |
-| `GET /api/items` | | `[{ id, vaultId, type, dataEnc }]` |
-| `PUT /api/items/:id` | `{ vaultId, type, dataEnc }` | `null`; creates or updates |
-| `DELETE /api/items/:id` | | `null` |
-| `GET /api/backup` | | The database file, as a download |
-| `POST /api/restore` | `{ backup }` (the backup file, base64) | `{ safetyCopyPath }`; the current vault is saved there first |
-| `GET /api/database-file` | | `{ path, sizeBytes }` of the database file |
-| `GET /api/tables` | | `[{ name, rowCount }]` for every table |
-| `GET /api/tables/:name?page=1` | | `{ columns, rows, page, pageSize, pageCount, rowCount }`, 50 rows per page |
+| Method and path                    | Body                                                                                                                | Returns                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `GET /api/key-derivation`          |                                                                                                                     | `{ kdfParams, salt, verifier }`, or `null` before first setup              |
+| `POST /api/key-derivation`         | `{ kdfParams, salt, verifier }`                                                                                     | `null`; fails if already set up                                            |
+| `POST /api/change-master-password` | `{ masterKeySalt, newKeyDerivation: { kdfParams, salt, verifier }, rewrappedVaultKeys: { [vaultId]: wrappedKey } }` | `null`; all or nothing                                                     |
+| `GET /api/vaults`                  |                                                                                                                     | `[{ id, wrappedKey, nameEnc }]`                                            |
+| `PUT /api/vaults/:id`              | `{ masterKeySalt, wrappedKey, nameEnc }`                                                                            | `null`; creates or updates                                                 |
+| `DELETE /api/vaults/:id`           |                                                                                                                     | `null`; also deletes the vault's items                                     |
+| `GET /api/items`                   |                                                                                                                     | `[{ id, vaultId, type, dataEnc }]`                                         |
+| `PUT /api/items/:id`               | `{ vaultId, type, dataEnc }`                                                                                        | `null`; creates or updates                                                 |
+| `DELETE /api/items/:id`            |                                                                                                                     | `null`                                                                     |
+| `GET /api/backup`                  |                                                                                                                     | The database file, as a download                                           |
+| `POST /api/restore`                | `{ backup }` (the backup file, base64)                                                                              | `{ safetyCopyPath }`; the current vault is saved there first               |
+| `GET /api/database-file`           |                                                                                                                     | `{ path, sizeBytes }` of the database file                                 |
+| `GET /api/tables`                  |                                                                                                                     | `[{ name, rowCount }]` for every table                                     |
+| `GET /api/tables/:name?page=1`     |                                                                                                                     | `{ columns, rows, page, pageSize, pageCount, rowCount }`, 50 rows per page |
 
 IDs are UUIDs created in the browser, which is why creating and updating are the same `PUT`.
 
@@ -216,12 +217,12 @@ IDs are UUIDs created in the browser, which is why creating and updating are the
 
 Set these as environment variables when running `npm start`:
 
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `HOST` | `127.0.0.1` | Address to listen on. The default only accepts connections from this computer. |
-| `PORT` | `3000` | Port to listen on |
+| Variable            | Default               | Meaning                                                                                     |
+| ------------------- | --------------------- | ------------------------------------------------------------------------------------------- |
+| `HOST`              | `127.0.0.1`           | Address to listen on. The default only accepts connections from this computer.              |
+| `PORT`              | `3000`                | Port to listen on                                                                           |
 | `ALLOWED_HOSTNAMES` | `localhost,127.0.0.1` | Comma-separated names the browser may use to reach the server, for example `vault.home.lan` |
-| `VAULT_DATABASE` | `vault.sqlite` | Path to the database file |
+| `VAULT_DATABASE`    | `vault.sqlite`        | Path to the database file                                                                   |
 
 **Text size and theme.** The bar at the top right has **A−** / **A+** (80% to 160%) and a light/dark
 switch. Both are saved in the database (`user_settings`), so they are the same in every browser
@@ -291,22 +292,22 @@ npm test
 They use Node's built-in test runner, so there's nothing extra to install. Browser code runs
 against a real API server with a fresh in-memory database for each test, and real Argon2.
 
-| File | Covers | Run it when you change |
-| --- | --- | --- |
-| `tests/crypto.test.js` | Encryption, key derivation, password generator | `src/lib/crypto.js` |
-| `tests/master-password.test.js` | Creating, unlocking, locking, changing the master password | `vault.svelte.js`, `server/api.js`, `server/schema.sql`, `crypto.js` |
-| `tests/vaults-and-logins.test.js` | Vaults, logins, nothing readable on the server, backup | `vault.svelte.js`, `server/api.js`, `server/schema.sql` |
-| `tests/database-viewer.test.js` | Listing tables, every column shown, pages, unknown tables refused, read-only | `server/api.js`, `server/schema.sql` |
-| `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js`, `src/i18n/en/HowItWorks.js` |
-| `tests/i18n.test.js` | Every language has every English text; texts follow the chosen language; English fills any gap | `src/lib/i18n.svelte.js`, `src/i18n/` |
-| `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is chosen, invalid values ignored | `src/lib/display-settings.svelte.js` |
-| `tests/auto-lock.test.js` | Locks after 20 minutes by default, activity restarts the countdown, minutes kept within limits, nothing left running once stopped | `src/lib/auto-lock.svelte.js` |
-| `tests/user-settings.test.js` | Settings start empty, saving one keeps the others, used on start, older databases get the table, restore keeps them | `server/api.js`, `server/schema.sql`, `src/lib/user-settings.js`, `src/lib/display-settings.svelte.js`, `src/lib/i18n.svelte.js`, `src/lib/auto-lock.svelte.js` |
-| `tests/caps-lock.test.js` | Caps Lock warning turns on and off with key presses | `src/lib/caps-lock.svelte.js` |
-| `tests/database-file.test.js` | File location; restoring a backup, the safety copy, wrong or damaged files, password check | `server/api.js`, `vault.svelte.js` |
-| `tests/format.test.js` | Dates in the person's locale and time zone, other values as stored, file sizes, the auto-lock countdown | `src/lib/format.js` |
-| `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
-| `tests/svg-shapes.test.js` | Every shape of the logo is read for the jelly keycap, attributes in any order | `src/lib/svg-shapes.js`, `src/media/logo-symbol.svg` |
+| File                              | Covers                                                                                                                                     | Run it when you change                                                                                                                                          |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/crypto.test.js`            | Encryption, key derivation, password generator                                                                                             | `src/lib/crypto.js`                                                                                                                                             |
+| `tests/master-password.test.js`   | Creating, unlocking, locking, changing the master password                                                                                 | `vault.svelte.js`, `server/api.js`, `server/schema.sql`, `crypto.js`                                                                                            |
+| `tests/vaults-and-logins.test.js` | Vaults, logins, nothing readable on the server, backup                                                                                     | `vault.svelte.js`, `server/api.js`, `server/schema.sql`                                                                                                         |
+| `tests/database-viewer.test.js`   | Listing tables, every column shown, pages, unknown tables refused, read-only                                                               | `server/api.js`, `server/schema.sql`                                                                                                                            |
+| `tests/how-it-works.test.js`      | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js`, `src/i18n/en/HowItWorks.js`                                                                                                          |
+| `tests/i18n.test.js`              | Every language has every English text; texts follow the chosen language; English fills any gap                                             | `src/lib/i18n.svelte.js`, `src/i18n/`                                                                                                                           |
+| `tests/display-settings.test.js`  | Text size steps and limits, defaults when nothing is chosen, invalid values ignored                                                        | `src/lib/display-settings.svelte.js`                                                                                                                            |
+| `tests/auto-lock.test.js`         | Locks after 20 minutes by default, activity restarts the countdown, minutes kept within limits, nothing left running once stopped          | `src/lib/auto-lock.svelte.js`                                                                                                                                   |
+| `tests/user-settings.test.js`     | Settings start empty, saving one keeps the others, used on start, older databases get the table, restore keeps them                        | `server/api.js`, `server/schema.sql`, `src/lib/user-settings.js`, `src/lib/display-settings.svelte.js`, `src/lib/i18n.svelte.js`, `src/lib/auto-lock.svelte.js` |
+| `tests/caps-lock.test.js`         | Caps Lock warning turns on and off with key presses                                                                                        | `src/lib/caps-lock.svelte.js`                                                                                                                                   |
+| `tests/database-file.test.js`     | File location; restoring a backup, the safety copy, wrong or damaged files, password check                                                 | `server/api.js`, `vault.svelte.js`                                                                                                                              |
+| `tests/format.test.js`            | Dates in the person's locale and time zone, other values as stored, file sizes, the auto-lock countdown                                    | `src/lib/format.js`                                                                                                                                             |
+| `tests/web-server.test.js`        | Security headers, Host check, file access, JSON-only writes                                                                                | `server/server.js`, `server/api.js`                                                                                                                             |
+| `tests/svg-shapes.test.js`        | Every shape of the logo is read for the jelly keycap, attributes in any order                                                              | `src/lib/svg-shapes.js`, `src/media/logo-symbol.svg`                                                                                                            |
 
 To run one file:
 
@@ -344,9 +345,22 @@ src/              The browser app. main.js mounts App.svelte; app.css holds the 
                   The .ico holds a hand-made 16px version; rebuild it if that file changes.
 tests/            One test file per area (see Tests); shared helpers in tests/support/.
 design/           Source files for the artwork, like the logo. Not used by the app.
+site/             The landing page: one HTML file, no build step. See Landing page.
+.github/          The workflow that publishes the landing page to GitHub Pages.
 index.html        The page the app is mounted into.
 vite.config.js    The Svelte build, and the API mounted inside the dev server.
 ```
+
+## Landing page
+
+The project's page lives in [`site/index.html`](site/index.html): one HTML file with no build
+step and no JavaScript, in the app's colours and font. To preview it, open the file in a browser.
+
+It's published to GitHub Pages at https://joaogeraldes.github.io/jelly-keycap/ by
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml), every time `site/` changes on `main`
+(or by hand, from the Actions tab). The workflow copies the app's font next to the page, so there's
+only ever one copy of it in the repository. One-time setup: in the repository's **Settings → Pages**,
+set **Source** to **GitHub Actions**.
 
 Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop
 installers, from `npm run package`) and `node_modules/`.
@@ -369,4 +383,4 @@ Each of these fits the current design without changing it:
 ## License
 
 [MIT](LICENSE) © 2026 João Geraldes. Contributions are welcome: open an
-[issue](https://github.com/JoaoGeraldes/password-manager-2026/issues) or a pull request.
+[issue](https://github.com/JoaoGeraldes/jelly-keycap/issues) or a pull request.
