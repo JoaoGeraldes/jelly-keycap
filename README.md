@@ -8,6 +8,28 @@ encryption that happens entirely in your browser.
 The goal is the least code that is still correct: no backend dependencies, and one runtime
 dependency in the browser (Argon2).
 
+## Highlights
+
+- **Encrypted in your browser.** Everything is encrypted before it leaves the page, with keys that
+  exist only in memory. The server and the database file only ever hold ciphertext.
+- **Strong, standard cryptography.** Argon2id (64 MiB, 3 passes, as OWASP recommends) turns your
+  master password into a key; AES-256-GCM encrypts every vault and login, each tied to its row.
+- **One file you own.** Your whole vault is a single SQLite file on your computer. Back it up with
+  one click, and restore it with a safety copy of your current vault saved first.
+- **No accounts, no cloud, no telemetry.** Nothing is sent anywhere unless you put the file there.
+- **Desktop app or browser.** Install it and open it like any other app, or run it as a small local
+  server. Windows, macOS and Linux.
+- **Everything you need, nothing more.** Separate vaults, search, a password generator, cloning,
+  undo for deletes, and auto-lock after a period of inactivity, with a countdown you can change.
+- **See for yourself.** A built-in database viewer shows every value exactly as stored, and
+  interactive diagrams explain how each algorithm protects your data.
+- **Comfortable to use.** Light and dark themes, adjustable text size, a typeface made for low
+  vision, and English and Portuguese. Your settings are saved with your vault.
+- **Small enough to read.** No backend dependencies, one in the browser, and tests for every
+  area. Open source under the MIT License.
+
+## Contents
+
 - [Quick start](#quick-start)
 - [Desktop app](#desktop-app)
 - [How it works](#how-it-works)
