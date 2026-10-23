@@ -369,13 +369,14 @@ installers, from `npm run package`) and `node_modules/`.
 ## Code style
 
 One style for every file, set in [`prettier.config.js`](prettier.config.js): 2 spaces, single
-quotes, semicolons, trailing commas and lines up to 120 columns. `.editorconfig` gives the basics
+quotes, semicolons, trailing commas and lines up to 80 columns. `.editorconfig` gives the basics
 to any editor, and in VS Code, `.vscode/` formats on save with the Prettier extension (suggested
-when you open the folder).
+when you open the folder). Older files follow the style once they're next changed, so a diff
+shows the real change rather than a whole file reformatted.
 
 ```sh
-npm run format         # format every file
-npm run format:check   # list files that don't match, without changing them
+npx prettier --write <file>   # format one file
+npm run format:check          # list files that don't match yet, without changing them
 ```
 
 ## Not built yet
