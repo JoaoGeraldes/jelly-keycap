@@ -36,6 +36,7 @@ jobs:
         run: |
           mkdir -p _site/fonts
           cp site/index.html site/landing.js src/lib/jelly-keycap.js _site/
+          cp -r site/screenshots _site/
           cp src/fonts/*.ttf _site/fonts/
       - uses: actions/upload-pages-artifact@v3
         with:

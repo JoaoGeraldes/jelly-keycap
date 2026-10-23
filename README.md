@@ -2,6 +2,10 @@
 
 # Jelly Keycap
 
+[![Tests](https://github.com/JoaoGeraldes/jelly-keycap/actions/workflows/tests.yml/badge.svg)](https://github.com/JoaoGeraldes/jelly-keycap/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+· [Landing page](https://joaogeraldes.github.io/jelly-keycap/)
+
 A minimal, self-hosted password manager. One Node process, one SQLite file, a Svelte UI, and
 encryption that happens entirely in your browser.
 
@@ -27,6 +31,21 @@ dependency in the browser (Argon2).
   vision, and English and Portuguese. Your settings are saved with your vault.
 - **Small enough to read.** No backend dependencies, one in the browser, and tests for every
   area. Open source under the MIT License.
+
+## Screenshots
+
+<table>
+  <tr>
+    <td width="33%"><a href="site/screenshots/lock-screen.png"><img src="site/screenshots/lock-screen.png" alt="The lock screen: the jelly keycap logo above the master password field." /></a></td>
+    <td width="33%"><a href="site/screenshots/my-database.png"><img src="site/screenshots/my-database.png" alt="The database viewer: the vault file's location, and the items table with every secret encrypted." /></a></td>
+    <td width="33%"><a href="site/screenshots/how-it-works.png"><img src="site/screenshots/how-it-works.png" alt="How it works: the Technical diagram, from master password through Argon2id to the keys." /></a></td>
+  </tr>
+  <tr>
+    <td align="center">Unlocking your vault</td>
+    <td align="center">Exactly what is stored: only ciphertext</td>
+    <td align="center">How it works, step by step</td>
+  </tr>
+</table>
 
 ## Contents
 
@@ -315,8 +334,10 @@ language is used. Every screen is translated. What isn't yet: error messages tha
 npm test
 ```
 
-They use Node's built-in test runner, so there's nothing extra to install. Browser code runs
-against a real API server with a fresh in-memory database for each test, and real Argon2.
+They use Node's built-in test runner, so there's nothing extra to install. They also run on
+GitHub on every push and pull request ([`.github/workflows/tests.yml`](.github/workflows/tests.yml)),
+on Node.js 22.13 and 24. Browser code runs against a real API server with a fresh in-memory
+database for each test, and real Argon2.
 
 | File                              | Covers                                                                                                                                     | Run it when you change                                                                                                                                          |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -373,9 +394,9 @@ src/              The browser app. main.js mounts App.svelte; app.css holds the 
                   The .ico holds a hand-made 16px version; rebuild it if that file changes.
 tests/            One test file per area (see Tests); shared helpers in tests/support/.
 design/           Source files for the artwork, like the logo. Not used by the app.
-site/             The landing page: one HTML file and its script, no build step. See
-                  Landing page.
-.github/          The workflow that publishes the landing page to GitHub Pages.
+site/             The landing page: one HTML file, its script and the screenshots (also
+                  used by this README), no build step. See Landing page.
+.github/          Workflows: the tests on every push, and publishing the landing page.
 index.html        The page the app is mounted into.
 vite.config.js    The Svelte build, and the API mounted inside the dev server.
 prettier.config.js, .editorconfig, .vscode/

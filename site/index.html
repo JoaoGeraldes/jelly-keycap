@@ -382,6 +382,38 @@
         background: var(--color-surface);
       }
 
+      /* Screenshots of the app */
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+        gap: 20px;
+      }
+
+      .shots figure {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        margin: 0;
+      }
+
+      .shots a {
+        display: block;
+        border: 1px solid var(--color-line);
+        border-radius: var(--radius);
+        overflow: hidden;
+      }
+
+      .shots img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .shots figcaption {
+        color: var(--color-ink-muted);
+        font-size: 14px;
+      }
+
       /* What you type, next to what is stored */
       .compare {
         display: grid;
@@ -709,6 +741,60 @@
           <li>Windows, macOS, Linux</li>
         </ul>
       </div>
+
+      <section id="screenshots">
+        <div class="page">
+          <div class="section-heading">
+            <p class="eyebrow">Take a look</p>
+            <h2>Calm, readable, and nothing hidden</h2>
+          </div>
+          <div class="shots">
+            <figure>
+              <a href="screenshots/lock-screen.png">
+                <img
+                  src="screenshots/lock-screen.png"
+                  width="1108"
+                  height="814"
+                  loading="lazy"
+                  decoding="async"
+                  alt="The lock screen: the jelly keycap logo above the master password field."
+                />
+              </a>
+              <figcaption>One master password unlocks everything.</figcaption>
+            </figure>
+            <figure>
+              <a href="screenshots/my-database.png">
+                <img
+                  src="screenshots/my-database.png"
+                  width="1112"
+                  height="820"
+                  loading="lazy"
+                  decoding="async"
+                  alt="The database viewer: where the vault file is, and the items table with every secret encrypted."
+                />
+              </a>
+              <figcaption>
+                The database viewer shows exactly what is stored: only ciphertext.
+              </figcaption>
+            </figure>
+            <figure>
+              <a href="screenshots/how-it-works.png">
+                <img
+                  src="screenshots/how-it-works.png"
+                  width="1112"
+                  height="822"
+                  loading="lazy"
+                  decoding="async"
+                  alt="How it works: the Technical diagram, from the master password through Argon2id to the keys."
+                />
+              </a>
+              <figcaption>
+                How it works draws every step, from password to encrypted data.
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
 
       <section id="how-it-works">
         <div class="page">
