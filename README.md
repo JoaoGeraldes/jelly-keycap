@@ -294,6 +294,7 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/database-file.test.js` | File location; restoring a backup, the safety copy, wrong or damaged files, password check | `server/api.js`, `vault.svelte.js` |
 | `tests/format.test.js` | Dates in the person's locale and time zone, other values as stored, file sizes | `src/lib/format.js` |
 | `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
+| `tests/svg-shapes.test.js` | Every shape of the logo is read for the jelly keycap, attributes in any order | `src/lib/svg-shapes.js`, `src/media/logo-symbol.svg` |
 
 To run one file:
 

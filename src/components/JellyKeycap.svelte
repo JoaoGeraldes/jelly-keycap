@@ -1,5 +1,5 @@
 <!--
-  A jelly keycap on the lock screen, just for fun. Every keystroke smashes it and it wobbles
+  The logo as a jelly keycap on the lock screen, just for fun. Every keystroke smashes it and it wobbles
   back; type fast and it stays squashed flatter. It can be grabbed, dragged and thrown.
   Decorative only: hidden from screen readers, and still for anyone who prefers less motion.
 
@@ -10,6 +10,8 @@
 -->
 <script>
   import { onMount } from "svelte";
+  import logoSvg from "../media/logo-symbol.svg?raw";
+  import { pathShapes } from "../lib/svg-shapes.js";
 
   let { keystrokes = 0 } = $props();
 
@@ -38,6 +40,13 @@
   const KEY_HEIGHT = 50;
   const SUBSTEPS = 4; // smaller steps keep stiff springs steady
   const LANDING_SPEED = 60; // slower than this, touching the floor is resting, not landing
+
+  // Drawn from the same file the app shows, so the two always match.
+  const LOGO = new Path2D();
+  for (const shape of pathShapes(logoSvg)) LOGO.addPath(new Path2D(shape));
+  // Where the logo actually sits inside its 24 × 24 viewBox (measured with getBBox()), so the
+  // drawing fills the keycap exactly and rests on the floor. Its 1.28 shape matches KEY_WIDTH/KEY_HEIGHT.
+  const LOGO_BOX = { x: 0.6, y: 3.09, width: 22.79, height: 17.83 };
 
   // x, y: the middle of its bottom edge. squash > 0 is flatter, < 0 taller. lean in radians.
   const key = { x: WIDTH / 2, y: FLOOR, speedX: 0, speedY: 0, squash: 0, squashSpeed: 0, lean: 0, leanSpeed: 0 };
@@ -180,7 +189,6 @@
     context.scale(pixelRatio, pixelRatio);
     const style = getComputedStyle(canvas); // read every time, so it follows a theme change
     const jellyColor = style.getPropertyValue("--color-accent");
-    const legendColor = style.getPropertyValue("--color-on-accent");
     const { width, height } = size();
 
     // A shadow on the floor, smaller and fainter the higher it flies.
@@ -193,38 +201,13 @@
     // Drawn around the middle of the bottom edge, so it squashes onto the floor and leans from there.
     context.translate(key.x, key.y);
     context.transform(1, 0, -Math.tan(key.lean), 1, 0, 0);
-    const left = -width / 2;
-    const top = -height;
-    const radius = Math.min(10, height / 3);
+    context.translate(-width / 2, -height);
+    context.scale(width / LOGO_BOX.width, height / LOGO_BOX.height); // squashing stretches the logo too
+    context.translate(-LOGO_BOX.x, -LOGO_BOX.y);
 
     context.globalAlpha = 0.85; // jelly is a little see-through
     context.fillStyle = jellyColor;
-    context.beginPath();
-    context.roundRect(left, top, width, height, radius); // the sides of the keycap
-    context.fill();
-    context.fillStyle = "rgb(0 0 0 / 0.18)";
-    context.fill();
-
-    const inset = width * 0.12;
-    context.fillStyle = jellyColor;
-    context.beginPath();
-    context.roundRect(left + inset, top + height * 0.08, width - inset * 2, height * 0.68, radius * 0.8); // the top
-    context.fill();
-    context.fillStyle = "rgb(255 255 255 / 0.18)";
-    context.fill();
-
-    context.globalAlpha = 1;
-    context.fillStyle = "rgb(255 255 255 / 0.45)"; // a glossy shine
-    context.beginPath();
-    context.ellipse(left + inset + width * 0.16, top + height * 0.2, width * 0.1, height * 0.06, -0.3, 0, Math.PI * 2);
-    context.fill();
-
-    // The legend: a password's hidden character.
-    context.fillStyle = legendColor;
-    context.font = `bold ${Math.round(height * 0.5)}px system-ui, sans-serif`;
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText("*", 0, top + height * 0.48);
+    context.fill(LOGO);
   }
 
   // Pointer position in the canvas's own units, whatever size it is shown at.
