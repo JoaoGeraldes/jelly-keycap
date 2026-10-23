@@ -23,15 +23,24 @@ let stopCountdown = null; // set while a countdown is running
  */
 export function startAutoLock(onTimeUp, activityTarget = globalThis) {
   stopAutoLock();
+  let isStopped = false;
   const interval = setInterval(() => {
+    // A tick already on its way when the countdown stopped does nothing, so
+    // the vault locks exactly once.
+    if (isStopped) return;
     updateSecondsLeft();
     if (autoLock.secondsLeft > 0) return;
     stopAutoLock();
     onTimeUp();
   }, 1000);
-  for (const name of ACTIVITY_EVENTS) activityTarget.addEventListener?.(name, restartCountdown, { passive: true });
+  for (const name of ACTIVITY_EVENTS) {
+    activityTarget.addEventListener?.(name, restartCountdown, {
+      passive: true,
+    });
+  }
 
   stopCountdown = () => {
+    isStopped = true;
     clearInterval(interval);
     for (const name of ACTIVITY_EVENTS) activityTarget.removeEventListener?.(name, restartCountdown);
     stopCountdown = null;
