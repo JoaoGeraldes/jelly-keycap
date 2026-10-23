@@ -22,7 +22,6 @@ dependency in the browser (Argon2).
 - [Project layout](#project-layout)
 - [Landing page](#landing-page)
 - [Code style](#code-style)
-- [Not built yet](#not-built-yet)
 - [License](#license)
 
 ## Quick start
@@ -378,21 +377,6 @@ shows the real change rather than a whole file reformatted.
 npx prettier --write <file>   # format one file
 npm run format:check          # list files that don't match yet, without changing them
 ```
-
-## Not built yet
-
-Each of these fits the current design without changing it:
-
-- **Import and export** from Bitwarden, 1Password, KeePass and browser CSV files.
-- **Replacing vault keys** after a leaked password: re-encrypt every item with new vault keys.
-- **Renaming vaults.** The API already supports it through `PUT /api/vaults/:id`.
-- **Moving a login to another vault.** `saveItem` already re-encrypts with the right key;
-  only the UI control is missing.
-- **More item types**, such as notes, API keys, SSH keys and `.env` files. `items.type` is
-  ready for them.
-- **Comfort features:** clearing the clipboard after copying, a trash for deleted entries.
-- **A CLI** that reads the same file, for scripts and environment variables.
-- **Schema migrations**, using SQLite's `PRAGMA user_version` once the schema first changes.
 
 ## License
 
