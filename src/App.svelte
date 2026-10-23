@@ -1,20 +1,31 @@
-<!-- A slim bar with the display settings, then the lock screen or, once unlocked, the vault. -->
+<!--
+  A slim bar with the logo, the auto-lock countdown once unlocked, and the display settings;
+  then the lock screen or, once unlocked, the vault.
+-->
 <script>
+  import AutoLockCountdown from "./components/AutoLockCountdown.svelte";
   import DisplaySettings from "./components/DisplaySettings.svelte";
   import logo from "./media/logo-symbol.svg";
   import LockScreen from "./screens/LockScreen.svelte";
   import VaultScreen from "./screens/VaultScreen.svelte";
   import { session } from "./lib/vault.svelte.js";
+
+  let vaultScreen = $state();
 </script>
 
 <div class="app">
   <header class="top-bar">
-    <img class="logo" src={logo} alt="Jelly Keycap" />
+    <div class="top-bar-start">
+      <img class="logo" src={logo} alt="Jelly Keycap" />
+      {#if session.isUnlocked}
+        <AutoLockCountdown onOpenSettings={() => vaultScreen.showSettings()} />
+      {/if}
+    </div>
     <DisplaySettings />
   </header>
 
   {#if session.isUnlocked}
-    <VaultScreen />
+    <VaultScreen bind:this={vaultScreen} />
   {:else}
     <LockScreen />
   {/if}
@@ -38,6 +49,12 @@
     padding: 0 8px;
     border-bottom: 1px solid var(--color-line);
     background: var(--color-sidebar);
+  }
+
+  .top-bar-start {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
   /* An odd height on purpose: the bar has 39px inside its border, so 23px centres on a whole

@@ -41,3 +41,17 @@ CREATE TABLE IF NOT EXISTS items (
 );
 
 CREATE INDEX IF NOT EXISTS items_by_vault ON items (vault_id);
+
+-- One row only. The person's settings, kept here so they are the same in every browser and in
+-- the desktop app. Plain text: none of it is secret, and the language is needed on the lock
+-- screen, before anything can be decrypted. NULL means not chosen yet, so the app's default is used.
+CREATE TABLE IF NOT EXISTS user_settings (
+  id                 INTEGER PRIMARY KEY CHECK (id = 1),
+  theme              TEXT,     -- 'light' or 'dark'
+  text_scale         REAL,     -- 1 is normal size, 1.2 is 20% bigger
+  language           TEXT,     -- 'en' or 'pt'
+  auto_lock_minutes  INTEGER   -- minutes without activity before the vault locks itself
+);
+
+-- The row is there from the start, so reading and saving never have to check for it.
+INSERT OR IGNORE INTO user_settings (id) VALUES (1);

@@ -5,27 +5,26 @@
  *
  * English is the reference: tests/i18n.test.js fails if another language is missing a text,
  * and anything missing still shows in English rather than breaking the screen.
- * The chosen language is remembered in this browser only; until one is chosen, the browser's is used.
+ * The chosen language is saved in the database (see user-settings.js); until one is chosen, the
+ * browser's is used.
  */
+import { api } from './api.js';
 import en from '../i18n/en/index.js';
 import pt from '../i18n/pt/index.js';
 
 export const LANGUAGES = { en: 'English', pt: 'Português' };
 export const TRANSLATIONS = { en, pt };
-const STORAGE_KEY = 'vault-language';
 
 /** The chosen language, as a language code. Reactive: changing it updates every text on screen. */
-export const language = $state({ code: loadLanguage() });
+export const language = $state({ code: browserLanguage() });
 applyLanguage();
 
-export function setLanguage(code) {
+/** Switches every text on screen. `save: false` is for the language just read from the database. */
+export function setLanguage(code, { save = true } = {}) {
+  if (!(code in LANGUAGES)) return;
   language.code = code;
   applyLanguage();
-  try {
-    localStorage.setItem(STORAGE_KEY, code);
-  } catch {
-    // Not remembered, but still used for this visit.
-  }
+  if (save) return api.saveUserSettings({ language: code }).catch(() => {}); // if not saved, still used for this visit
 }
 
 /** One component's texts in the chosen language, read as `text.save` or `text.notSaved(reason)`. */
@@ -34,15 +33,9 @@ export function textFor(component) {
   return new Proxy({}, { get: (_, key) => TRANSLATIONS[language.code][component]?.[key] ?? en[component][key] });
 }
 
-function loadLanguage() {
-  let saved = null;
-  try {
-    saved = localStorage.getItem(STORAGE_KEY);
-  } catch {
-    // Storage can be blocked (private windows, strict settings); the browser's language still works.
-  }
-  const browserLanguage = globalThis.navigator?.language?.slice(0, 2);
-  return [saved, browserLanguage].find((code) => code in LANGUAGES) ?? 'en';
+function browserLanguage() {
+  const code = globalThis.navigator?.language?.slice(0, 2);
+  return code in LANGUAGES ? code : 'en';
 }
 
 // Screen readers and spell checkers use <html lang> to know which language they're reading.

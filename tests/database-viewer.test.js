@@ -17,6 +17,7 @@ test('lists every table with its number of rows', async () => {
   assert.deepEqual(await getJson('tables'), [
     { name: 'items', rowCount: 0 },
     { name: 'key_derivation', rowCount: 1 },
+    { name: 'user_settings', rowCount: 1 },
     { name: 'vaults', rowCount: 1 },
   ]);
 });
@@ -53,7 +54,7 @@ test('a table that does not exist is refused', async () => {
     const response = await fetch(`/api/tables/${encodeURIComponent(name)}`);
     assert.equal(response.status, 404, name);
   }
-  assert.equal((await getJson('tables')).length, 3);
+  assert.equal((await getJson('tables')).length, 4);
 });
 
 test('the viewer cannot change anything', async () => {

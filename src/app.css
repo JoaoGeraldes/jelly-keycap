@@ -7,7 +7,7 @@
  * its small corner radius, so switching theme changes only the colors.
  * Light: the Tailwind "slate" palette, cool blue-greys (shade names in the comments).
  * Dark: VS Code's default "Dark Modern" theme (colors from its theme file).
- * The theme (data-theme on <html>) and --text-scale are set by src/lib/display-settings.js.
+ * The theme (data-theme on <html>) and --text-scale are set by src/lib/display-settings.svelte.js.
  * 1rem is the body text size, so every rem-based size follows --text-scale.
  * All text uses Atkinson Hyperlegible Mono, kept in src/fonts/ so the app still loads nothing
  * from the internet. System fonts are the fallback while it loads.

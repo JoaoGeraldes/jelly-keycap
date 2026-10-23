@@ -82,6 +82,11 @@
     selectedItem = item;
   }
 
+  /** For the auto-lock countdown in the top bar, outside this screen. */
+  export function showSettings() {
+    showPanel("settings");
+  }
+
   function showPanel(name) {
     isMenuOpen = false;
     selectedItem = null;

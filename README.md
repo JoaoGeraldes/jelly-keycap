@@ -112,7 +112,9 @@ master password ──Argon2id──▶ master key ──unwraps──▶ vault 
   `verifier`, `vault-key:<id>`, `vault-name:<id>` or `item:<id>`. Copying one row's
   ciphertext onto another row makes decryption fail instead of quietly showing the wrong data.
 - **Locking.** Keys exist only in JavaScript memory. Lock, reload or close the tab, and they
-  are gone.
+  are gone. The app also locks itself after 20 minutes without a key press, click or pointer
+  movement. The countdown next to the logo opens Settings, where the minutes can be changed
+  (saved in `user_settings`).
 
 ### Changing the master password
 
@@ -142,13 +144,19 @@ and **Technical**, with every algorithm linked to its official documentation. It
 ## Database
 
 The full schema with comments is in [`server/schema.sql`](server/schema.sql). It runs on
-every start (`CREATE TABLE IF NOT EXISTS`), so a new install needs no setup step.
+every start (`CREATE TABLE IF NOT EXISTS`), so a new install needs no setup step, and an existing
+database gets any newly added table the next time the app starts.
 
 | Table | One row per | Plaintext columns | Encrypted columns |
 | --- | --- | --- | --- |
 | `key_derivation` | installation (always exactly one) | `kdf_params`, `salt`, `created_at` | `verifier` |
 | `vaults` | vault | `id`, timestamps | `wrapped_key`, `name_enc` |
 | `items` | saved login | `id`, `vault_id`, `type`, timestamps | `data_enc` |
+| `user_settings` | installation (always exactly one) | `theme`, `text_scale`, `language`, `auto_lock_minutes` | none |
+
+`user_settings` is plain text on purpose: none of it is secret, and the lock screen needs the
+language before anything can be decrypted. A column left `NULL` means "not chosen yet", and the
+app uses its default. Restoring a backup keeps your current settings.
 
 Encrypted values are stored as base64 text rather than BLOBs. That costs about a third more
 space but lets the server pass values straight through with no conversion code.
@@ -216,7 +224,8 @@ Set these as environment variables when running `npm start`:
 | `VAULT_DATABASE` | `vault.sqlite` | Path to the database file |
 
 **Text size and theme.** The bar at the top right has **A−** / **A+** (80% to 160%) and a light/dark
-switch. Both are remembered in your browser; until you pick a theme, your system's is used.
+switch. Both are saved in the database (`user_settings`), so they are the same in every browser
+and in the desktop app; until you pick a theme, your system's is used.
 
 **Look.** The faint grain over the app is set at the top of `src/app.css`: `--noise-opacity`
 (0 turns it off), `--noise-size` and, inside `--noise-texture`, `baseFrequency` for how fine it is.
@@ -268,7 +277,8 @@ common words like "Cancel" in several files is on purpose: every file stands on 
 - **Nothing gets forgotten:** `tests/i18n.test.js` fails if a language is missing a file or a
   text that English has. In the app, anything missing still shows in English.
 
-The language is chosen in **Settings** and remembered in this browser; until then, the browser's
+The language is chosen in **Settings** and saved in the database (`user_settings`), so it's the
+same in every browser and in the desktop app; until then, the browser's
 language is used. Every screen is translated. What isn't yet: error messages that come from
 `src/lib/vault.svelte.js` or the server (like a wrong master password), which are still in English.
 
@@ -289,10 +299,12 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/database-viewer.test.js` | Listing tables, every column shown, pages, unknown tables refused, read-only | `server/api.js`, `server/schema.sql` |
 | `tests/how-it-works.test.js` | Both diagrams: every arrow joins two real nodes, no node left unconnected; Simple is smaller; every Technical algorithm linked to its docs | `src/lib/how-it-works.js`, `src/i18n/en/HowItWorks.js` |
 | `tests/i18n.test.js` | Every language has every English text; texts follow the chosen language; English fills any gap | `src/lib/i18n.svelte.js`, `src/i18n/` |
-| `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is saved | `src/lib/display-settings.js` |
+| `tests/display-settings.test.js` | Text size steps and limits, defaults when nothing is chosen, invalid values ignored | `src/lib/display-settings.svelte.js` |
+| `tests/auto-lock.test.js` | Locks after 20 minutes by default, activity restarts the countdown, minutes kept within limits, nothing left running once stopped | `src/lib/auto-lock.svelte.js` |
+| `tests/user-settings.test.js` | Settings start empty, saving one keeps the others, used on start, older databases get the table, restore keeps them | `server/api.js`, `server/schema.sql`, `src/lib/user-settings.js`, `src/lib/display-settings.svelte.js`, `src/lib/i18n.svelte.js`, `src/lib/auto-lock.svelte.js` |
 | `tests/caps-lock.test.js` | Caps Lock warning turns on and off with key presses | `src/lib/caps-lock.svelte.js` |
 | `tests/database-file.test.js` | File location; restoring a backup, the safety copy, wrong or damaged files, password check | `server/api.js`, `vault.svelte.js` |
-| `tests/format.test.js` | Dates in the person's locale and time zone, other values as stored, file sizes | `src/lib/format.js` |
+| `tests/format.test.js` | Dates in the person's locale and time zone, other values as stored, file sizes, the auto-lock countdown | `src/lib/format.js` |
 | `tests/web-server.test.js` | Security headers, Host check, file access, JSON-only writes | `server/server.js`, `server/api.js` |
 | `tests/svg-shapes.test.js` | Every shape of the logo is read for the jelly keycap, attributes in any order | `src/lib/svg-shapes.js`, `src/media/logo-symbol.svg` |
 
@@ -350,7 +362,7 @@ Each of these fits the current design without changing it:
   only the UI control is missing.
 - **More item types**, such as notes, API keys, SSH keys and `.env` files. `items.type` is
   ready for them.
-- **Comfort features:** auto-lock after inactivity, clearing the clipboard after copying, a trash for deleted entries.
+- **Comfort features:** clearing the clipboard after copying, a trash for deleted entries.
 - **A CLI** that reads the same file, for scripts and environment variables.
 - **Schema migrations**, using SQLite's `PRAGMA user_version` once the schema first changes.
 

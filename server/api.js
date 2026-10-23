@@ -15,6 +15,8 @@
  *   GET    /api/items                   → every item
  *   PUT    /api/items/:id               → create or update an item
  *   DELETE /api/items/:id               → delete an item
+ *   GET    /api/user-settings           → theme, text size, language, auto-lock minutes (null until chosen)
+ *   PUT    /api/user-settings           → save the settings given; the others stay as they were
  *   GET    /api/backup                  → download a copy of the database file
  *   POST   /api/restore                 → replace everything with a backup (current vault saved first)
  *   GET    /api/database-file           → where the database file is, and its size
@@ -157,6 +159,19 @@ export function createApiHandler(databasePath) {
 
     'DELETE items/:id': ({ id }) => {
       database.prepare('DELETE FROM items WHERE id = ?').run(id);
+    },
+
+    'GET user-settings': () =>
+      database
+        .prepare('SELECT theme, text_scale AS textScale, language, auto_lock_minutes AS autoLockMinutes FROM user_settings')
+        .get(),
+
+    'PUT user-settings': ({ body }) => {
+      const current = routes['GET user-settings']();
+      const { theme, textScale, language, autoLockMinutes } = { ...current, ...body };
+      database
+        .prepare('UPDATE user_settings SET theme = ?, text_scale = ?, language = ?, auto_lock_minutes = ?')
+        .run(theme, textScale, language, autoLockMinutes);
     },
 
     'GET tables': () =>

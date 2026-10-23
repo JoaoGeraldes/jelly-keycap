@@ -1,5 +1,5 @@
 /**
- * Talks to the server. Every value sent here is already encrypted (see vault.svelte.js),
+ * Talks to the server. Every secret sent here is already encrypted (see vault.svelte.js),
  * and the routes mirror server/api.js one to one.
  */
 
@@ -26,6 +26,9 @@ export const api = {
   listItems: () => request('GET', 'items'),
   saveItem: (id, item) => request('PUT', `items/${id}`, item),
   deleteItem: (id) => request('DELETE', `items/${id}`),
+
+  getUserSettings: () => request('GET', 'user-settings'),
+  saveUserSettings: (changes) => request('PUT', 'user-settings', changes),
 
   listTables: () => request('GET', 'tables'),
   readTable: (name, page) => request('GET', `tables/${encodeURIComponent(name)}?page=${page}`),

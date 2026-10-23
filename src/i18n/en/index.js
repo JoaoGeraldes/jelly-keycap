@@ -1,5 +1,6 @@
 // Every English text file, by component name. Each other language's index.js lists the same names.
 import About from './About.js';
+import AutoLockCountdown from './AutoLockCountdown.js';
 import CapsLockWarning from './CapsLockWarning.js';
 import ChangeMasterPassword from './ChangeMasterPassword.js';
 import DatabaseViewer from './DatabaseViewer.js';
@@ -15,6 +16,7 @@ import VaultScreen from './VaultScreen.js';
 
 export default {
   About,
+  AutoLockCountdown,
   CapsLockWarning,
   ChangeMasterPassword,
   DatabaseViewer,

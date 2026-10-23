@@ -3,21 +3,12 @@
   import { textFor } from "../lib/i18n.svelte.js";
   import {
     TEXT_SCALE,
-    applyDisplaySettings,
-    loadDisplaySettings,
+    displaySettings as settings,
     nextTextScale,
-    saveDisplaySettings,
-  } from "../lib/display-settings.js";
+    updateDisplaySettings as update,
+  } from "../lib/display-settings.svelte.js";
 
   const text = textFor("DisplaySettings");
-
-  let settings = $state(loadDisplaySettings());
-
-  function update(changes) {
-    Object.assign(settings, changes);
-    applyDisplaySettings(settings);
-    saveDisplaySettings(settings);
-  }
 </script>
 
 <div class="display-settings">

@@ -23,3 +23,12 @@ export function formatCell(column, value, options) {
 export function formatSize(bytes) {
   return bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
+
+/** Seconds as a clock-style countdown: 19:05, or 1:30:00 from an hour up. */
+export function formatCountdown(seconds) {
+  const twoDigits = (value) => String(value).padStart(2, '0');
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const rest = twoDigits(seconds % 60);
+  return hours ? `${hours}:${twoDigits(minutes)}:${rest}` : `${minutes}:${rest}`;
+}
