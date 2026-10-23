@@ -29,7 +29,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # The page uses the app's font and jelly keycap; copies go next to it
       # rather than keeping second ones in site/.
       - name: Put the page together with the app's font and jelly keycap

@@ -14,6 +14,18 @@ afterEach(() => {
   mock.timers.reset();
 });
 
+/**
+ * Lets `ms` pass one second at a time, the way a real clock moves. Skipping
+ * ahead in one go isn't the same on every Node version: on older ones, every
+ * tick of a long skip sees the time at its end, and a timer stopped during the
+ * skip keeps going until it's over.
+ */
+function wait(ms) {
+  for (let passed = 0; passed < ms; passed += 1000) {
+    mock.timers.tick(Math.min(1000, ms - passed));
+  }
+}
+
 /** A stand-in for the browser window that counts the activity listeners added to it. */
 function activityTarget() {
   const target = new EventTarget();
@@ -29,11 +41,11 @@ test('with nothing changed, the vault locks after 20 minutes, not a second befor
   const onTimeUp = mock.fn();
   startAutoLock(onTimeUp, activityTarget());
 
-  mock.timers.tick(20 * MINUTE - 1000);
+  wait(20 * MINUTE - 1000);
   assert.equal(onTimeUp.mock.callCount(), 0);
   assert.equal(autoLock.secondsLeft, 1);
 
-  mock.timers.tick(1000);
+  wait(1000);
   assert.equal(onTimeUp.mock.callCount(), 1);
 });
 
@@ -41,7 +53,7 @@ test('the countdown shows the seconds left, counting down every second', () => {
   startAutoLock(() => {}, activityTarget());
   assert.equal(autoLock.secondsLeft, 20 * 60);
 
-  mock.timers.tick(3000);
+  wait(3000);
   assert.equal(autoLock.secondsLeft, 20 * 60 - 3);
 });
 
@@ -51,7 +63,7 @@ test('a key press, click or pointer movement starts the countdown again from the
   startAutoLock(onTimeUp, window);
 
   for (const activity of ['keydown', 'pointerdown', 'pointermove', 'wheel']) {
-    mock.timers.tick(15 * MINUTE);
+    wait(15 * MINUTE);
     window.dispatchEvent(new Event(activity));
     assert.equal(autoLock.secondsLeft, 20 * 60, activity);
   }
@@ -61,12 +73,12 @@ test('a key press, click or pointer movement starts the countdown again from the
 test('changing the minutes starts the countdown again with the new time', () => {
   const onTimeUp = mock.fn();
   startAutoLock(onTimeUp, activityTarget());
-  mock.timers.tick(10 * MINUTE);
+  wait(10 * MINUTE);
 
   setAutoLockMinutes(5);
   assert.equal(autoLock.secondsLeft, 5 * 60);
 
-  mock.timers.tick(5 * MINUTE);
+  wait(5 * MINUTE);
   assert.equal(onTimeUp.mock.callCount(), 1);
 });
 
@@ -88,8 +100,8 @@ test('once the vault locks, nothing is left running: no more ticks and no listen
   startAutoLock(onTimeUp, window);
   assert.equal(window.listenerCount, 4);
 
-  mock.timers.tick(20 * MINUTE);
-  mock.timers.tick(60 * MINUTE);
+  wait(20 * MINUTE);
+  wait(60 * MINUTE);
   assert.equal(onTimeUp.mock.callCount(), 1);
   assert.equal(window.listenerCount, 0);
 });
@@ -100,7 +112,7 @@ test('stopping the countdown, as locking by hand does, leaves nothing running', 
   const stop = startAutoLock(onTimeUp, window);
 
   stop();
-  mock.timers.tick(60 * MINUTE);
+  wait(60 * MINUTE);
   assert.equal(onTimeUp.mock.callCount(), 0);
   assert.equal(window.listenerCount, 0);
   assert.equal(autoLock.secondsLeft, 0);
@@ -113,6 +125,6 @@ test('starting again replaces the running countdown instead of adding a second o
   startAutoLock(onTimeUp, window);
 
   assert.equal(window.listenerCount, 4);
-  mock.timers.tick(20 * MINUTE);
+  wait(20 * MINUTE);
   assert.equal(onTimeUp.mock.callCount(), 1);
 });
