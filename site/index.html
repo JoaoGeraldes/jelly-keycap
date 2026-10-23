@@ -12,7 +12,7 @@
     <!-- Nothing here runs scripts or loads anything from elsewhere, so the policy can be this strict. -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'none'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
+      content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"
     />
     <title>Jelly Keycap · a minimal, self-hosted password manager</title>
     <meta
@@ -247,10 +247,66 @@
         margin-bottom: 4px;
       }
 
-      .hero h1 {
-        font-size: clamp(2.2rem, 7vw, 3.6rem);
-        line-height: 1.1;
-        letter-spacing: -0.02em;
+      /* Read by screen readers and search engines; the field below shows it. */
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      /* The title is a text field: typing in it squashes the jelly keycap.
+         landing.js sizes it to its text; 13ch fits "Jelly Keycap" until then. */
+      .title-input {
+        width: 13ch;
+        max-width: 100%;
+        padding: 0;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: none;
+        color: inherit;
+        font: 700 clamp(2.2rem, 7vw, 3.6rem) / 1.1 var(--font);
+        text-align: center;
+        caret-color: var(--color-accent);
+      }
+
+      .title-input:focus {
+        outline: none;
+        border-bottom-color: var(--color-line);
+      }
+
+      /* Shown once landing.js has started the jelly keycap; until then, or
+         without JavaScript, the plain logo stays. */
+      .jelly-keycap,
+      .hint {
+        display: none;
+      }
+
+      .has-jelly .jelly-keycap {
+        display: block;
+        width: min(100%, 24rem);
+        aspect-ratio: 240 / 150;
+        border-bottom: 2px solid var(--color-line); /* the floor */
+        cursor: grab;
+        touch-action: none; /* dragging on a touch screen moves it, not the page */
+      }
+
+      .has-jelly .hint {
+        display: block;
+        margin-top: -12px;
+        color: var(--color-ink-muted);
+        font-size: 13px;
+      }
+
+      .has-jelly .logo-still {
+        display: none;
+      }
+
+      /* The canvas already leaves room above the keycap for throwing it. */
+      .hero.has-jelly {
+        padding-top: 16px;
       }
 
       .motto {
@@ -616,8 +672,20 @@
 
     <main id="top">
       <div class="page hero">
-        <svg class="logo" aria-hidden="true"><use href="#logo" /></svg>
-        <h1>Jelly Keycap</h1>
+        <svg class="logo logo-still" aria-hidden="true">
+          <use href="#logo" />
+        </svg>
+        <canvas class="jelly-keycap" aria-hidden="true"></canvas>
+        <h1 class="visually-hidden">Jelly Keycap</h1>
+        <input
+          class="title-input"
+          value="Jelly Keycap"
+          aria-label="Jelly Keycap. Type here to squash the logo."
+          maxlength="30"
+          spellcheck="false"
+          autocomplete="off"
+        />
+        <p class="hint">Type to squash it. Drag it to throw it.</p>
         <p class="motto">Zero knowledge. One file. Your keys.</p>
         <p class="lead">
           A minimal, self-hosted password manager. Your secrets live in one file
@@ -908,5 +976,6 @@
         </span>
       </div>
     </footer>
+    <script type="module" src="landing.js"></script>
   </body>
 </html>

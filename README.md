@@ -308,6 +308,7 @@ against a real API server with a fresh in-memory database for each test, and rea
 | `tests/format.test.js`            | Dates in the person's locale and time zone, other values as stored, file sizes, the auto-lock countdown                                    | `src/lib/format.js`                                                                                                                                             |
 | `tests/web-server.test.js`        | Security headers, Host check, file access, JSON-only writes                                                                                | `server/server.js`, `server/api.js`                                                                                                                             |
 | `tests/svg-shapes.test.js`        | Every shape of the logo is read for the jelly keycap, attributes in any order                                                              | `src/lib/svg-shapes.js`, `src/media/logo-symbol.svg`                                                                                                            |
+| `tests/jelly-keycap.test.js` | The jelly keycap wobbles on a keystroke and stops by itself once still, stays still for less motion, leaves nothing running once removed | `src/lib/jelly-keycap.js` |
 
 To run one file:
 
@@ -354,12 +355,22 @@ vite.config.js    The Svelte build, and the API mounted inside the dev server.
 ## Landing page
 
 The project's page lives in [`site/index.html`](site/index.html): one HTML file with no build
-step and no JavaScript, in the app's colours and font. To preview it, open the file in a browser.
+step, in the app's colours and font. Its only script, [`site/landing.js`](site/landing.js), turns
+the logo into the app's jelly keycap ([`src/lib/jelly-keycap.js`](src/lib/jelly-keycap.js), shared
+with the lock screen) and the title into a field that squashes it as you type. Without JavaScript
+the page shows the plain logo and still reads the same.
+
+To preview it, serve the project folder and open `/site/` (browsers don't run scripts from a file
+opened by double-click):
+
+```sh
+npx serve .        # then open http://localhost:3000/site/
+```
 
 It's published to GitHub Pages at https://joaogeraldes.github.io/jelly-keycap/ by
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml), every time `site/` changes on `main`
-(or by hand, from the Actions tab). The workflow copies the app's font next to the page, so there's
-only ever one copy of it in the repository. One-time setup: in the repository's **Settings → Pages**,
+(or by hand, from the Actions tab). The workflow copies the app's font and `jelly-keycap.js` next to
+the page, so there's only ever one copy of each in the repository. One-time setup: in the repository's **Settings → Pages**,
 set **Source** to **GitHub Actions**.
 
 Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop

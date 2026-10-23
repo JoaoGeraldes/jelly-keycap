@@ -5,7 +5,11 @@ name: Landing page
 on:
   push:
     branches: [main]
-    paths: [site/**, src/fonts/**, .github/workflows/pages.yml]
+    paths:
+      - site/**
+      - src/fonts/**
+      - src/lib/jelly-keycap.js
+      - .github/workflows/pages.yml
   workflow_dispatch: # lets it be run by hand from the Actions tab
 
 permissions:
@@ -26,11 +30,12 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      # The page uses the app's font; a copy goes next to it rather than keeping a second one in site/.
-      - name: Put the page and its font together
+      # The page uses the app's font and jelly keycap; copies go next to it
+      # rather than keeping second ones in site/.
+      - name: Put the page together with the app's font and jelly keycap
         run: |
           mkdir -p _site/fonts
-          cp site/index.html _site/
+          cp site/index.html site/landing.js src/lib/jelly-keycap.js _site/
           cp src/fonts/*.ttf _site/fonts/
       - uses: actions/upload-pages-artifact@v3
         with:
