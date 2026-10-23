@@ -8,4 +8,11 @@
 - Whenever a feature is added, removed or changed, run the tests related to it (the table in
   README.md → Tests maps files to test files). Add or update tests for the change. When unsure,
   run `npm test`.
+- Security-sensitive changes (the API and server in `server/`, `src/lib/crypto.js`,
+  `src/lib/vault.svelte.js`, key derivation, encryption, security headers, backup and restore)
+  must be checked against current guidance from reputable sources: the OWASP Cheat Sheet Series
+  and ASVS, NIST (SP 800-63B, SP 800-38D), the relevant RFCs (e.g. RFC 9106 for Argon2) and MDN's
+  web security docs. Name the sources checked when describing the change, and never weaken a
+  security default (Argon2 parameters, CSP, Host check, JSON-only writes) without the user's
+  explicit approval.
 - Never commit; leave changes for the user to review.
