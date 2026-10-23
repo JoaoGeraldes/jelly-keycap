@@ -1,4 +1,4 @@
-// Lets Node import src/lib/vault.svelte.js without the Svelte compiler.
+// Lets Node import the src/lib/*.svelte.js modules without the Svelte compiler.
 // `$state(value)` only makes `value` reactive for the UI. Tests don't need reactivity,
 // so here it becomes plain `(value)`.
 export async function load(url, context, nextLoad) {

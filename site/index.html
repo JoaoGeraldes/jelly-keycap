@@ -1,15 +1,16 @@
 <!doctype html>
 <!--
   The project's landing page, published to GitHub Pages by .github/workflows/pages.yml.
-  One file on purpose: no build step, no JavaScript, and the same colors and font as the app
-  (see src/app.css). Open it straight from the folder to preview it.
+  One file on purpose: no build step, and the same colors and font as the app (see src/app.css).
+  Its one script, landing.js, adds the jelly keycap; without it the page still reads the same.
+  To preview it, serve the project folder and open /site/ (see README.md → Landing page).
 -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <!-- Nothing here runs scripts or loads anything from elsewhere, so the policy can be this strict. -->
+    <!-- Only the page's own script runs, and nothing loads from elsewhere, so the policy can be this strict. -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'"

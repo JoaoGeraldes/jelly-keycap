@@ -1,4 +1,4 @@
-/** How stored values are shown on the database screen. */
+/** How values are shown: stored values on the database screen, and the auto-lock countdown. */
 
 /** The schema names every column holding a Unix time in milliseconds *_at (created_at, updated_at). */
 export function isTimestampColumn(column) {

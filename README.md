@@ -146,7 +146,8 @@ and **Technical**, with every algorithm linked to its official documentation. It
 
 The full schema with comments is in [`server/schema.sql`](server/schema.sql). It runs on
 every start (`CREATE TABLE IF NOT EXISTS`), so a new install needs no setup step, and an existing
-database gets any newly added table the next time the app starts.
+database gets any newly added table the next time the app starts. A new column in an existing
+table is not added this way: that would need a migration, which isn't built yet.
 
 | Table            | One row per                       | Plaintext columns                                      | Encrypted columns         |
 | ---------------- | --------------------------------- | ------------------------------------------------------ | ------------------------- |
@@ -173,7 +174,8 @@ the note in the corner can bring it back. Locking, closing or reloading the app 
 the entry. This is the only thing that waits; everything else is saved immediately.
 
 **What someone with only the file can see:** how many vaults and items exist, which item is
-in which vault, item types, and when things were created or changed. Nothing else.
+in which vault, item types, when things were created or changed, and your settings (theme, text
+size, language, auto-lock minutes). Nothing else.
 
 ## API
 
@@ -191,6 +193,8 @@ Implemented in [`server/api.js`](server/api.js). It's JSON in and out. Errors co
 | `GET /api/items`                   |                                                                                                                     | `[{ id, vaultId, type, dataEnc }]`                                         |
 | `PUT /api/items/:id`               | `{ vaultId, type, dataEnc }`                                                                                        | `null`; creates or updates                                                 |
 | `DELETE /api/items/:id`            |                                                                                                                     | `null`                                                                     |
+| `GET /api/user-settings`           |                                                                                                                     | `{ theme, textScale, language, autoLockMinutes }`, each `null` until chosen |
+| `PUT /api/user-settings`           | Any of `{ theme, textScale, language, autoLockMinutes }`                                                            | `null`; the settings not given stay as they were                           |
 | `GET /api/backup`                  |                                                                                                                     | The database file, as a download                                           |
 | `POST /api/restore`                | `{ backup }` (the backup file, base64)                                                                              | `{ safetyCopyPath }`; the current vault is saved there first               |
 | `GET /api/database-file`           |                                                                                                                     | `{ path, sizeBytes }` of the database file                                 |
@@ -333,8 +337,9 @@ server/           The backend: a thin Node server that stores and returns encryp
 src/              The browser app. main.js mounts App.svelte; app.css holds the colour tokens
                   for both themes, base elements and buttons.
   lib/            Logic with no markup: the session and its encryption (vault.svelte.js),
-                  cryptography, talking to the server, translations, display settings and
-                  small helpers. Components call these; they never touch keys or HTTP.
+                  cryptography, talking to the server, translations, saved settings,
+                  auto-lock, the jelly keycap and small helpers. Components call these;
+                  they never touch keys or HTTP.
   screens/        The two full screens: locked (LockScreen) and unlocked (VaultScreen).
   components/     Everything else on screen: the entry editor, panels (Settings, About,
                   database, How it works), dialogs and small widgets. One component per file.
@@ -346,11 +351,17 @@ src/              The browser app. main.js mounts App.svelte; app.css holds the 
                   The .ico holds a hand-made 16px version; rebuild it if that file changes.
 tests/            One test file per area (see Tests); shared helpers in tests/support/.
 design/           Source files for the artwork, like the logo. Not used by the app.
-site/             The landing page: one HTML file, no build step. See Landing page.
+site/             The landing page: one HTML file and its script, no build step. See
+                  Landing page.
 .github/          The workflow that publishes the landing page to GitHub Pages.
 index.html        The page the app is mounted into.
 vite.config.js    The Svelte build, and the API mounted inside the dev server.
+prettier.config.js, .editorconfig, .vscode/
+                  The code style, for every editor. See Code style.
 ```
+
+Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop
+installers, from `npm run package`) and `node_modules/`.
 
 ## Landing page
 
@@ -372,9 +383,6 @@ It's published to GitHub Pages at https://joaogeraldes.github.io/jelly-keycap/ b
 (or by hand, from the Actions tab). The workflow copies the app's font and `jelly-keycap.js` next to
 the page, so there's only ever one copy of each in the repository. One-time setup: in the repository's **Settings → Pages**,
 set **Source** to **GitHub Actions**.
-
-Generated, not committed: `dist/` (the built UI, from `npm run build`), `release/` (desktop
-installers, from `npm run package`) and `node_modules/`.
 
 ## Code style
 
